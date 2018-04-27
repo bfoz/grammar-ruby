@@ -145,6 +145,16 @@ RSpec.describe Grammar::Concatenation do
 		expect(klass.new('abc', 'def')).to eql(klass.new('abc', 'def'))
 	    end
 
+	    it 'must replace an instance at the same location' do
+		klass = Grammar::Concatenation.with('abc', 'def')
+		expect(klass.new('abc', 'def', location:1)).to eql(klass.new('abc', 'def', location:1))
+	    end
+
+	    it 'must not replace an instance at a different location' do
+		klass = Grammar::Concatenation.with('abc', 'def')
+		expect(klass.new('abc', 'def', location:0)).to eql(klass.new('abc', 'def', location:1))
+	    end
+
 	    it 'must not replace anything else' do
 		klass = Grammar::Concatenation.with('abc', 'def')
 		expect(klass.new('abc', 'def')).not_to eql(Grammar::Alternation.with('abc', 'def').new('abc'))
