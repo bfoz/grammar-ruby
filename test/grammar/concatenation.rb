@@ -154,6 +154,11 @@ RSpec.describe Grammar::Concatenation do
 	end
 
 	context 'hash equality' do
+	    xit 'must replace an equal String' do
+		Grammar::Concatenation.with('abc').new('abc', location:0).must_be :eql?, 'abc'
+		Grammar::Concatenation.with('def', prefix:'abc', suffix:'xyz').new('def', prefix:'abc', suffix:'xyz', location:0).must_be :eql?, 'def'
+	    end
+
 	    it 'must replace an instance at the same location' do
 		klass = Grammar::Concatenation.with('abc', 'def')
 		expect(klass.new('abc', 'def', location:1)).to eql(klass.new('abc', 'def', location:1))

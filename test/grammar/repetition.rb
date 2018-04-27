@@ -69,6 +69,13 @@ RSpec.describe Grammar::Repetition do
 	    expect(Grammar::Repetition.any('a')).to eql(Grammar::Repetition.any('a'))
 	end
 
+	xit 'must not replace a differently named version of itself' do
+	    klassA = Grammar::Repetition.any('a')
+	    klassB = Grammar::Repetition.any('a')
+	    expect(klassA).not_to eql(klassB)
+	    expect(klassB).not_to eql(klassA)
+	end
+
 	it 'must not replace anything else' do
 	    klassA = Grammar::Repetition.any('a')
 	    klassB = Grammar::Repetition.any('z')

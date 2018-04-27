@@ -194,6 +194,12 @@ class Grammar::Repetition
 
 	def to_regexp
 	    _suffix = regex_repetition_suffix()
+	 #    _re = self.grammar.to_re
+	 #    if _suffix and not (_re.start_with?('(') or _re.end_with?(')'))
+		# Regexp.new('(' + _re + ')' + _suffix)
+	 #    else
+		# Regexp.new(_re + (_suffix or ''))
+	 #    end
 	    if _suffix
 		_re = self.grammar.to_re
 		if _re.start_with?('(') and _re.end_with?(')')

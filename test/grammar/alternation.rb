@@ -48,6 +48,13 @@ RSpec.describe Grammar::Alternation do
 	    expect(Grammar::Alternation.with('a', 'b')).to eql(Grammar::Alternation.with('a', 'b'))
 	end
 
+	xit 'must not replace a differently named version of itself' do
+	    klassA = Grammar::Alternation.with('a', 'b')
+	    klassB = Grammar::Alternation.with('a', 'b')
+	    expect(klassA).not_to eql(klassB)
+	    expect(klassB).not_to eql(klassA)
+	end
+
 	it 'must not replace anything else' do
 	    klassA = Grammar::Alternation.with('a', 'b')
 	    klassB = Grammar::Alternation.with('a'..'z')
@@ -59,6 +66,7 @@ RSpec.describe Grammar::Alternation do
 	alternation0 = Grammar::Alternation.with('abc', 'def', 'ghi')
 	alternation1 = Grammar::Alternation.with('jkl', 'mno')
 	alternation = alternation0 | alternation1
+	# expect(alternation.elements).to eq(['abc', 'def', 'ghi', 'jkl', 'mno'])
 	expect(alternation.elements.length).to eq(4)
     end
 
