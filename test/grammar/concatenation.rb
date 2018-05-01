@@ -7,6 +7,11 @@ RSpec.describe Grammar::Concatenation do
 	    concatenation = Grammar::Concatenation.with('abc', 'def', 'xyz')
 	    expect(concatenation.elements.length).to eq(3)
 	end
+
+	it 'must be Enumerable' do
+	    klass = Grammar::Concatenation.with('abc', 'def', 'xyz')
+	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
     end
 
     context 'equality' do
@@ -122,6 +127,11 @@ RSpec.describe Grammar::Concatenation do
 	it 'must have a length' do
 	    klass = Grammar::Concatenation.with('abc', 'def')
 	    expect(klass.new('abc', 'def').length).to eq(6)
+	end
+
+	it 'must be Enumerable' do
+	    klass = Grammar::Concatenation.with('abc', 'def')
+	    expect(klass.new('abc', 'def').to_a).to eq(['abc', 'def'])
 	end
 
 	context 'equality' do

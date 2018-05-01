@@ -26,6 +26,11 @@ RSpec.describe Grammar::Repetition do
 	    expect(klass.minimum).to eq(0)
 	    expect(klass.optional?).to eq(true)
 	end
+
+	it 'must be Enumerable' do
+	    klass = Grammar::Repetition.optional('abc')
+	    expect(klass.new('abc', 'abc').to_a).to eq(['abc', 'abc'])
+	end
     end
 
     context 'class equality' do

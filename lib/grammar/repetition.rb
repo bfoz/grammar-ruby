@@ -1,12 +1,13 @@
 module Grammar; end
 
 class Grammar::Repetition
+    include Enumerable
     extend Forwardable
 
     attr_reader :elements
     attr_reader :location
 
-    def_delegators :@elements, :[], :first, :last
+    def_delegators :@elements, :[], :each, :first, :last
 
     def initialize(*args, location:nil)
 	@elements = args

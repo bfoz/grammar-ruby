@@ -30,6 +30,7 @@ module Grammar
 	end
 
 	class << self
+	    include Enumerable
 	    extend Forwardable
 	    include Repeatable
 

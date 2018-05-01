@@ -2,12 +2,13 @@ require_relative 'repeatable'
 
 module Grammar
     class Concatenation
+	include Enumerable
 	extend Forwardable
 
 	attr_reader :elements
 	attr_reader :location
 
-	def_delegators :@elements, :[], :first, :last
+	def_delegators :@elements, :[], :each, :first, :last
 
 	def initialize(*args, location:nil)
 	    raise ArgumentError.new("Need #{self.class.elements.length} arguments, got #{args.length}") unless args.length == self.class.elements.length
@@ -49,6 +50,7 @@ module Grammar
 	end
 
 	class << self
+	    include Enumerable
 	    extend Forwardable
 	    include Repeatable
 

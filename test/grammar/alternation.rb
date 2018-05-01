@@ -7,6 +7,13 @@ RSpec.describe Grammar::Alternation do
 	expect(alternation.elements.length).to eq(3)
     end
 
+    describe 'when subclassed' do
+	it 'must be Enumerable' do
+	    klass = Grammar::Alternation.with('abc', 'def', 'xyz')
+	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
+    end
+
     context 'class equality' do
 	it 'must be equal to an equal Alternation' do
 	    expect(Grammar::Alternation.with('a', 'b')).to eq(Grammar::Alternation.with('a', 'b'))
