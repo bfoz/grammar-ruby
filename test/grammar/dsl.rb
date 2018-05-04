@@ -24,4 +24,55 @@ RSpec.describe Grammar::DSL do
 	expect { TestClass.build }.to raise_error(NoMethodError)
 	expect { TestClass.new.build }.to raise_error(NoMethodError)
     end
+
+    context 'Recursion' do
+	it 'must build a repeating Alternation' do
+	    module Test0
+		extend Grammar::DSL
+
+		alternation(:Rule0) do
+		    elements 'abc', 'def', Rule0
+		end
+	    end
+	    expect(Test0::Rule0).to eq(Grammar::Repetition.at_least(1, Grammar::Alternation.with('abc', 'def')))
+	end
+
+	it 'must build a left-recursive concatenation' do
+	    module Test1
+		extend Grammar::DSL
+
+		concatenation(:Rule0) do
+		    elements Rule0, ')'
+		end
+
+		concatenation :Rule1 do
+		    elements Rule1, 'abc', 'def'
+		end
+	    end
+	    expect(Test1::Rule0).to eq(Grammar::Repetition.any(')'))
+	    expect(Test1::Rule1).to eq(Grammar::Repetition.any(Grammar::Concatenation.with('abc', 'def')))
+	end
+
+	it 'must build a right-recursive concatenation' do
+	    module Test2
+		extend Grammar::DSL
+
+		concatenation(:Rule0) do
+		    elements '(', Rule0
+		end
+	    end
+	    expect(Test2::Rule0).to eq(Grammar::Repetition.at_least(1, '('))
+	end
+
+	it 'must build a center-recursive concatenation' do
+	    module Test3
+		extend Grammar::DSL
+
+		concatenation(:Rule0) do
+		    elements '(', Rule0, ')'
+		end
+	    end
+	    expect(Test3::Rule0).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('(', Test3::Rule0, ')')))
+	end
+    end
 end
