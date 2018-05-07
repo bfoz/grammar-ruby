@@ -1,7 +1,9 @@
+require 'grammar/dsl'
+
 RSpec.describe Grammar::DSL do
     it 'must create a Module' do
 	module Test
-	    extend Grammar::DSL
+	    using Grammar::DSL
 	    Rule = alternation('a', 'b')
 	end
 
@@ -11,7 +13,7 @@ RSpec.describe Grammar::DSL do
     it 'must not expose the build method to modules' do
 	expect do
 	    module Test
-		extend Grammar::DSL
+		using Grammar::DSL
 		build()
 	    end
 	end.to raise_error(NoMethodError)
@@ -28,7 +30,7 @@ RSpec.describe Grammar::DSL do
     context 'Recursion' do
 	it 'must build a repeating Alternation' do
 	    module Test0
-		extend Grammar::DSL
+		using Grammar::DSL
 
 		alternation(:Rule0) do
 		    elements 'abc', 'def', Rule0
@@ -39,7 +41,7 @@ RSpec.describe Grammar::DSL do
 
 	it 'must build a left-recursive concatenation' do
 	    module Test1
-		extend Grammar::DSL
+		using Grammar::DSL
 
 		concatenation(:Rule0) do
 		    elements Rule0, ')'
@@ -55,7 +57,7 @@ RSpec.describe Grammar::DSL do
 
 	it 'must build a right-recursive concatenation' do
 	    module Test2
-		extend Grammar::DSL
+		using Grammar::DSL
 
 		concatenation(:Rule0) do
 		    elements '(', Rule0
@@ -66,7 +68,7 @@ RSpec.describe Grammar::DSL do
 
 	it 'must build a center-recursive concatenation' do
 	    module Test3
-		extend Grammar::DSL
+		using Grammar::DSL
 
 		concatenation(:Rule0) do
 		    elements '(', Rule0, ')'

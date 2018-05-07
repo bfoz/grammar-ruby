@@ -84,5 +84,9 @@ module Grammar
 	def concatenation(*elements, &block)
 	    Grammar::DSL.build(Grammar::Concatenation, *elements, &block)
 	end
+
+	refine Module do
+	    include Grammar::DSL
+	end
     end
 end

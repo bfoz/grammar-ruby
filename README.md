@@ -18,7 +18,7 @@ or, equivalently...
 
 ```ruby
 module MyGrammar
-    extend Grammar::DSL
+    using Grammar::DSL
     MyRule = ...
 end
 ```
