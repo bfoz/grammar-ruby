@@ -207,5 +207,8 @@ class Grammar::Repetition
 	    end
 	end
 
+	def inspect
+	    "<Repetition:" + self.grammar.inspect + (regex_repetition_suffix() or '') + ">"
+	end
     end
 end

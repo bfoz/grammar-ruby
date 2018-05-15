@@ -7,6 +7,8 @@ class Grammar::Recursion
 
     def ==(other)
 	self.grammar == other.grammar
+    rescue NoMethodError
+    	nil
     end
 
     class << self

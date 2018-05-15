@@ -129,6 +129,40 @@ which is normally meant to repesent a repetition that's constrained to an odd nu
 Rule0 = Repetition.with('x', minimum:3, &:odd?)
 ```
 
+### Outer Recursion
+
+Many grammar languages use some very odd tricks for doing various things, and this is one that tends to be used to represent an odd number of some item.
+
+```ruby
+grammar :MyGrammar do
+    concatenation :Rule0 do
+        elements Rule0, ',', Rule0
+    end
+end
+```
+
+Someday, _Grammar_ will rewrite this into something a bit less insane, but for now it just gives you an outer-recursive concatenation, as requested.
+
+### Nested Outer Recursion
+
+This particular use of recursion only happens when a recursive Concatenation is nested inside of an Alternation that contains elements other than the recursion-causing Concatenation. Typically, grammar writers use this trick to represent a separated list of items.
+
+_Grammar_ will try to help you out by replacing the outer-recursion with a repeating right-recursion, thereby eliminating the left-recursion.
+
+```ruby
+# This is bad
+alternation :Rule0 do
+    element 'abc'
+    element 'def'
+    element concatenation { elements Rule0, ',', Rule0 }
+end
+
+# This is what it becomes
+Rule0 = Grammar::Concatenation.with(
+            Grammar::Alternation.with('abc', 'def'),
+            Grammar::Concatenation.with(',', Rule0).any
+        )
+```
 ## Installation
 
 Add this line to your application's Gemfile:

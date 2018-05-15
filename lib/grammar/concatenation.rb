@@ -98,8 +98,16 @@ module Grammar
 		self.with(*elements, other)
 	    end
 
+	    def drop(n=1)
+		self.with(*self.elements.drop(n))
+	    end
+
 	    def label
 		(respond_to?(:name) && name) || object_id
+	    end
+
+	    def left_recursive?
+		elements.first.is_a?(Grammar::Recursion) or (elements.first.respond_to?(:left_recursive?) and elements.first.left_recursive?)
 	    end
 
 	    def to_re
