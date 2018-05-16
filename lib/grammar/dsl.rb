@@ -124,5 +124,13 @@ module Grammar
 	refine Module do
 	    include Grammar::DSL
 	end
+
+	refine String do
+	    include Grammar::Repeatable
+
+	    def |(other)
+		Grammar::Alternation.with(self, other)
+	    end
+	end
     end
 end

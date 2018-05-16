@@ -182,4 +182,24 @@ RSpec.describe Grammar::DSL do
 	    end
 	end
     end
+
+    context 'String refinement' do
+	it 'must alternate with other Strings' do
+	    module StringTest1
+		using Grammar::DSL
+		Rule0 = 'abc' | 'def'
+	    end
+
+	    expect(StringTest1::Rule0).to eq(Grammar::Alternation.with('abc', 'def'))
+	end
+
+	it 'must make Strings repeatable' do
+	    module StringTest2
+		using Grammar::DSL
+		Rule0 = 'abc'.any
+	    end
+
+	    expect(StringTest2::Rule0).to eq(Grammar::Repetition.any('abc'))
+	end
+    end
 end
