@@ -131,6 +131,16 @@ module Grammar
 	    def |(other)
 		Grammar::Alternation.with(self, other)
 	    end
+
+	    # Overload addition to perform concatenation unless the argument is a String
+	    def +(other)
+		case other
+		    when Alternation, Recursion, Repetition	then Grammar::Concatenation.with(self, other)
+		    when Concatenation				then Grammar::Concatenation.with(self, *other.elements)
+		    else
+			super
+		end
+	    end
 	end
     end
 end

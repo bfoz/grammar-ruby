@@ -201,5 +201,29 @@ RSpec.describe Grammar::DSL do
 
 	    expect(StringTest2::Rule0).to eq(Grammar::Repetition.any('abc'))
 	end
+
+	it 'must make Strings composable with Alternations' do
+	    module StringTest3
+		using Grammar::DSL
+		Rule0 = '(' + alternation('a', 'b')
+	    end
+	    expect(StringTest3::Rule0).to eq(Grammar::Concatenation.with('(', Grammar::Alternation.with('a', 'b')))
+	end
+
+	it 'must make Strings composable with Concatenations' do
+	    module StringTest4
+		using Grammar::DSL
+		Rule0 = 'a' + concatenation('b', 'c')
+	    end
+	    expect(StringTest4::Rule0).to eq(Grammar::Concatenation.with('a', 'b', 'c'))
+	end
+
+	it 'must not break String addition' do
+	    module StringTest5
+		using Grammar::DSL
+		Rule0 = 'a' + 'b'
+	    end
+	    expect(StringTest5::Rule0).to eq('ab')
+	end
     end
 end
