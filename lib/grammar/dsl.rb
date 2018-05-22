@@ -144,3 +144,6 @@ module Grammar
 	end
     end
 end
+
+# This is below Grammar::DSL because of circular reference issues
+require_relative 'builder'
