@@ -1,6 +1,10 @@
 require 'grammar/dsl'
 
 RSpec.describe Grammar::DSL do
+    let(:test_module) do
+	Module.new.tap {|m| m.extend(Grammar::DSL)}
+    end
+
     it 'must create a Module' do
 	module Test
 	    using Grammar::DSL
@@ -25,6 +29,64 @@ RSpec.describe Grammar::DSL do
 	end
 	expect { TestClass.build }.to raise_error(NoMethodError)
 	expect { TestClass.new.build }.to raise_error(NoMethodError)
+    end
+
+    context 'Alternation' do
+	it 'must build a simple Alternation without a block' do
+	    klass = test_module.module_eval do
+		alternation 'abc', 'def'
+	    end
+	    expect(klass).to eq(Grammar::Alternation.with('abc', 'def'))
+	end
+
+	it 'must build a simple Alternation with a block' do
+	    klass = test_module.module_eval do
+		alternation do
+		    element 'abc'
+		    element 'def'
+		end
+	    end
+	    expect(klass).to eq(Grammar::Alternation.with('abc', 'def'))
+	end
+
+	it 'must build a simple Alternation with a block and a name' do
+	    test_module.module_eval do
+		alternation :Rule do
+		    element 'abc'
+		    element 'def'
+		end
+	    end
+	    expect(test_module::Rule).to eq(Grammar::Alternation.with('abc', 'def'))
+	end
+    end
+
+    context 'Concatenation' do
+	it 'must build a simple Concatenation without a block' do
+	    klass = test_module.module_eval do
+		concatenation 'abc', 'def'
+	    end
+	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	end
+
+	it 'must build a simple Concatenation with a block' do
+	    klass = test_module.module_eval do
+		concatenation do
+		    element 'abc'
+		    element 'def'
+		end
+	    end
+	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	end
+
+	it 'must build a simple Concatenation with a block and a name' do
+	    test_module.module_eval do
+		concatenation :Rule do
+		    element 'abc'
+		    element 'def'
+		end
+	    end
+	    expect(test_module::Rule).to eq(Grammar::Concatenation.with('abc', 'def'))
+	end
     end
 
     context 'Recursion' do
