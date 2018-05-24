@@ -13,19 +13,28 @@ module Grammar
 		    # If it's stupid and it works, it's not stupid
 		    # This injects a const_missing handler into block's lexically enclosing Module for
 		    #  the purpose of catching any uses of the not-yet-defined recursive grammar-in-progress.
-		    # Any such references are replaced with a Recursion wrapper object
-		    enclosing_module = eval("self", block.binding)
+		    # The const_missing handler creates and returns a proxy object for the missing constant, or
+		    #  passes the call to the original handler, if any.
+		    # NOTE that this is the *lexically* enclosing Module, which may in fact be Object.ancestors.first if
+		    #  the enclosing module was created with Module.new (because that doesn't create a new lexical scope)
+		    lexical_self = eval("Module.nesting.first or Object.ancestors.first", block.binding)
 
 		    # But first, store the original const_missing in order to put it back later
 		    original_const_missing = begin
-			enclosing_module.singleton_method(:const_missing)
+			lexical_self.singleton_method(:const_missing)
 		    rescue NameError
 			nil
 		    end
 
 		    # Now inject the method
-		    enclosing_module.define_singleton_method(:const_missing) do |name|
-			recursion_wrapper ||= Grammar::Recursion.new if name == grammar_name
+		    lexical_self.define_singleton_method(:const_missing) do |name|
+			if name == grammar_name
+			    recursion_wrapper ||= Grammar::Recursion.new
+			elsif original_const_missing
+			    original_const_missing.call(name)
+			else
+			    super
+			end
 		    end
 		end
 
@@ -33,10 +42,16 @@ module Grammar
 		if grammar_name
 		    # Restore the original const_missing
 		    if original_const_missing
-			enclosing_module.define_singleton_method(:const_missing, original_const_missing)
+			lexical_self.define_singleton_method(:const_missing, original_const_missing)
 		    else
-			enclosing_module.singleton_class.send(:undef_method, :const_missing) rescue nil
+			lexical_self.singleton_class.send(:undef_method, :const_missing) rescue nil
 		    end
+
+		    # Find the *actual* enclosing scope to assign the resulting constant too. If block was
+		    #  created inside of a module that was created with Module.new, then this will be the created
+		    #  module. Otherwise, it will end up being the same as lexical_self, but that's fine because in
+		    #  that case that's where the new constant needs to go anyway.
+		    enclosing_module = eval("self", block.binding)
 
 		    # If the recursion wrapper was generated, then the block must have used it, therefore subklass is recursive
 		    if recursion_wrapper
