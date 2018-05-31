@@ -82,6 +82,13 @@ module Grammar
 		(respond_to?(:name) && name) || object_id
 	    end
 
+	    # @return [Bool]	Returns true if any element is recursive
+	    def left_recursive?
+		elements.any? do |element|
+		    element.is_a?(Grammar::Recursion) or (element.respond_to?(:left_recursive) and element.left_recursive?)
+		end
+	    end
+
 	    def to_re
 		elements_to_re = self.elements.map {|e| e.to_re rescue e.to_s}.join('|')
 		if self.elements.length > 1

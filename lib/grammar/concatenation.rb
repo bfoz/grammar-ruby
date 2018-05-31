@@ -106,6 +106,7 @@ module Grammar
 		(respond_to?(:name) && name) || object_id
 	    end
 
+	    # @return [Bool]	Returns true if the first element is recursive
 	    def left_recursive?
 		elements.first.is_a?(Grammar::Recursion) or (elements.first.respond_to?(:left_recursive?) and elements.first.left_recursive?)
 	    end
