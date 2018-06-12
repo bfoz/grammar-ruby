@@ -118,7 +118,7 @@ module Grammar
 				    elsif repeater_elements.length == 1
 					repeater_klass = repeater_elements.first
 				    else
-					raise StandardError.new("No recursive elements in a recursive grammar")
+					# Either all of the elements are non-recursive, or they aren't left-recursive
 				    end
 
 				    # Replace the initial subklass with the new "fixed" version
@@ -146,6 +146,10 @@ module Grammar
 				    enclosing_module.const_set(grammar_name, Grammar::Repetition.at_least(1, (subklass)))
 				elsif subklass.include?(recursion_wrapper)
 				    # Center-recursive
+				    recursion_wrapper.grammar = subklass
+				    enclosing_module.const_set(grammar_name, recursion_wrapper.freeze)
+				elsif subklass.recursive?
+				    # Somehow, some way, this thing is recursive. It's probably indirect-recursive or mutual-recursive.
 				    recursion_wrapper.grammar = subklass
 				    enclosing_module.const_set(grammar_name, recursion_wrapper.freeze)
 				else

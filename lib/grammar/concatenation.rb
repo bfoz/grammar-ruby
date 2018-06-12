@@ -111,6 +111,11 @@ module Grammar
 		elements.first.is_a?(Grammar::Recursion) or (elements.first.respond_to?(:left_recursive?) and elements.first.left_recursive?)
 	    end
 
+	    # @return [Bool]	Returns true if the first element is recursive
+	    def recursive?
+		elements.any? {|element| element.is_a?(Grammar::Recursion) or (element.respond_to?(:recursive?) and element.recursive?) }
+	    end
+
 	    def to_re
 		elements_to_re = self.elements.compact.map {|e| e.to_re rescue e.to_s}.map {|a| a=="\n" ? "\\n" : a}
 		elements_to_re.join

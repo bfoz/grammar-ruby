@@ -131,6 +131,38 @@ RSpec.describe Grammar::DSL do
 	    expect(test_module::Rule0).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('(', test_module::Rule0, ')')))
 	end
 
+	context 'Mutual Recursion' do
+	    it 'must build a mutually recursive Alternation' do
+		klassA = nil
+		klassB = nil
+		test_module.module_eval do
+		    alternation :Rule do
+			element 'abc'
+			element 'def'
+			element (klassA = concatenation('xyz', Rule))
+			element (klassB = concatenation('uvw', Rule))
+		    end
+		end
+
+		expect(test_module::Rule).to eq(Grammar::Recursion.with(Grammar::Alternation.with('abc', 'def', klassA, klassB)))
+	    end
+
+	    it 'must build a mutually recursive Concatenation' do
+		klassA = nil
+		klassB = nil
+		test_module.module_eval do
+		    concatenation :Rule do
+			element 'abc'
+			element (klassA = concatenation('def', Rule))
+			element (klassB = concatenation('uvw', Rule))
+			element 'xyz'
+		    end
+		end
+
+		expect(test_module::Rule).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('abc', klassA, klassB, 'xyz')))
+	    end
+	end
+
 	context 'Outer Recursion' do
 	    it 'must build an outer-recursive concatenation' do
 		test_module.module_eval do
