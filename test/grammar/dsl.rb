@@ -131,6 +131,51 @@ RSpec.describe Grammar::DSL do
 	    expect(test_module::Rule0).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('(', test_module::Rule0, ')')))
 	end
 
+	context 'Anonymous Recursion' do
+	    it 'must build a repeating Alternation' do
+		klass = test_module.module_eval do
+		    alternation do |rule0|
+			elements 'abc', 'def', rule0
+		    end
+		end
+		expect(klass).to eq(Grammar::Repetition.at_least(1, Grammar::Alternation.with('abc', 'def')))
+	    end
+
+	    it 'must build a left-recursive concatenation' do
+		klassA = nil
+		klassB = nil
+		test_module.module_eval do
+		    klassA = concatenation do |rule0|
+			elements rule0, ')'
+		    end
+
+		    klassB = concatenation do |rule1|
+			elements rule1, 'abc', 'def'
+		    end
+		end
+		expect(klassA).to eq(Grammar::Repetition.any(')'))
+		expect(klassB).to eq(Grammar::Repetition.any(Grammar::Concatenation.with('abc', 'def')))
+	    end
+
+	    it 'must build a right-recursive concatenation' do
+		klass = test_module.module_eval do
+		    concatenation do |rule0|
+			elements '(', rule0
+		    end
+		end
+		expect(klass).to eq(Grammar::Repetition.at_least(1, '('))
+	    end
+
+	    it 'must build a center-recursive concatenation' do
+		klass = test_module.module_eval do
+		    concatenation do |rule0|
+			elements 'a', rule0, 'z'
+		    end
+		end
+		expect(klass).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('a', klass, 'z')))
+	    end
+	end
+
 	context 'Mutual Recursion' do
 	    it 'must build a mutually recursive Alternation' do
 		klassA = nil

@@ -39,6 +39,24 @@ Most uses of recursion in typical parser grammars are actually a hack for implem
 
 When using the DSL to specify a grammar module, the relevant methods will attempt to detect common uses of recursion and handle them appropriately.
 
+### Named Recursion vs Anonymous Recursion
+
+_Grammar_ provides two syntaxes for creating a recursive element: named and anonymous. Named recursion creates a named constant in the enclosing lexical scope and assigns the resulting recursion proxy object to it. Anonymous recursion passes the proxy object to the block as the first block parameter.
+
+```ruby
+# Named recursion
+alternation :Rule0 do
+    # Reference the recursion using the Rule0 constant
+    ...
+end
+
+# Anonymous recursion
+alternation do |rule0|
+    # Reference the recursion using the rule0 block parameter
+    ...
+end
+```
+
 ### Alternation
 
 All recursive alternations are effecively left-recursive from the perspective of a top-down parser, and may be considered left-recursive by bottom-up parsers (depending on the specific implementation). And we all know how that turns out. Fortunately, _Grammar_ knows that you really wanted a repetition with at least one repeat, and will give you what you wanted instead of what you asked for.
