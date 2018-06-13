@@ -112,6 +112,10 @@ module Grammar
 		    # Finalize the recursion proxy in case it was used
 		    if block.arity.nonzero?
 			subklass = post_evaluate(klass, subklass, _recursion_wrapper)
+
+			# For anonymous recursion blocks, return the resulting pattern rather than the recursion-proxy
+			#  This behavior is closer to that of a non-recursive block and, hopefully, more intuitive
+			subklass = subklass.grammar if subklass.is_a?(Grammar::Recursion)
 		    end
 
 		    subklass

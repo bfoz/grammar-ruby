@@ -167,12 +167,14 @@ RSpec.describe Grammar::DSL do
 	    end
 
 	    it 'must build a center-recursive concatenation' do
+		recursion_klass = nil
 		klass = test_module.module_eval do
 		    concatenation do |rule0|
+			recursion_klass = rule0 	# Lift rule0 out of the block for testing purposes
 			elements 'a', rule0, 'z'
 		    end
 		end
-		expect(klass).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('a', klass, 'z')))
+		expect(klass).to eq(Grammar::Concatenation.with('a', recursion_klass, 'z'))
 	    end
 	end
 
