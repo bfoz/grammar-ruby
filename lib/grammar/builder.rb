@@ -45,7 +45,13 @@ module Grammar
 	    args.each {|arg| self.element(arg) }
 	end
 
-	def self.build(klass, *elements, &block)
+	# Wrap the evaluation step to make subclassing easier
+	# @return The result of the evaluation
+	def self.evaluate(klass, recursion_proxy, **options, &block)
+	    self.new(klass).evaluate(recursion_proxy, &block)
+	end
+
+	def self.build(klass, *elements, **options, &block)
 	    if block_given?
 		grammar_name = elements.shift if elements.first&.is_a?(Symbol)
 		raise ArgumentError.new("Block or elements, but not both") unless elements.empty?
@@ -88,7 +94,7 @@ module Grammar
 		    end
 		end
 
-		subklass = self.new(klass).evaluate(_recursion_wrapper, &block)
+		subklass = self.evaluate(klass, _recursion_wrapper, &block)
 		if grammar_name
 		    # Restore the original const_missing
 		    if original_const_missing
