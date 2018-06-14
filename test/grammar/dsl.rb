@@ -58,6 +58,25 @@ RSpec.describe Grammar::DSL do
 	    end
 	    expect(test_module::Rule).to eq(Grammar::Alternation.with('abc', 'def'))
 	end
+
+	it 'must add a named element as a constant' do
+	    klass = test_module.module_eval do
+		alternation do
+		    element First:'abc'
+		    element 'def'
+		end
+	    end
+	    expect(klass).to eq(Grammar::Alternation.with('abc', 'def'))
+	    expect(klass::First).to eq('abc')
+	end
+
+	it 'must add a named element as a constant without a block' do
+	    klass = test_module.module_eval do
+		alternation({First:'abc'}, 'def')
+	    end
+	    expect(klass).to eq(Grammar::Alternation.with('abc', 'def'))
+	    expect(klass::First).to eq('abc')
+	end
     end
 
     context 'Concatenation' do
@@ -86,6 +105,25 @@ RSpec.describe Grammar::DSL do
 		end
 	    end
 	    expect(test_module::Rule).to eq(Grammar::Concatenation.with('abc', 'def'))
+	end
+
+	it 'must add a named element as a constant' do
+	    klass = test_module.module_eval do
+		concatenation do
+		    element First:'abc'
+		    element 'def'
+		end
+	    end
+	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	    expect(klass::First).to eq('abc')
+	end
+
+	it 'must add a named element as a constant without a block' do
+	    klass = test_module.module_eval do
+		concatenation({First:'abc'}, 'def')
+	    end
+	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	    expect(klass::First).to eq('abc')
 	end
     end
 

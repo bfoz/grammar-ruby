@@ -3,11 +3,13 @@ require_relative 'recursion'
 module Grammar
     module DSL
 	def alternation(*elements, &block)
-	    Grammar::Builder.build(Grammar::Alternation, *elements, &block)
+	    options = {}
+	    Grammar::Builder.build(Grammar::Alternation, *elements, **options, &block)
 	end
 
 	def concatenation(*elements, &block)
-	    Grammar::Builder.build(Grammar::Concatenation, *elements, &block)
+	    options = {}
+	    Grammar::Builder.build(Grammar::Concatenation, *elements, **options, &block)
 	end
 
 	refine Module do

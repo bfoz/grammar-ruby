@@ -6,9 +6,10 @@ module Grammar
     class Builder
 	include Grammar::DSL
 
-	def initialize(klass)
+	def initialize(klass, local_constants={})
 	    @elements = []
 	    @klass = klass
+	    @local_constants = local_constants
 	end
 
 	# Evaluate a block in the contect of @klass and return a new instance of @klass
@@ -38,7 +39,13 @@ module Grammar
 	end
 
 	def element(arg)
-	    @elements.push arg
+	    if arg.is_a?(Hash) and (arg.length==1) and arg.keys.first.is_a?(Symbol)
+		const_name = arg.keys.first
+		@local_constants[const_name] = arg[const_name]
+		@elements.push arg[const_name]
+	    else
+		@elements.push arg
+	    end
 	end
 
 	def elements(*args)
@@ -47,8 +54,8 @@ module Grammar
 
 	# Wrap the evaluation step to make subclassing easier
 	# @return The result of the evaluation
-	def self.evaluate(klass, recursion_proxy, **options, &block)
-	    self.new(klass).evaluate(recursion_proxy, &block)
+	def self.evaluate(klass, recursion_proxy, local_constants, **options, &block)
+	    self.new(klass, local_constants).evaluate(recursion_proxy, &block)
 	end
 
 	def self.build(klass, *elements, **options, &block)
@@ -65,44 +72,45 @@ module Grammar
 		    _recursion_wrapper = Grammar::Recursion.new
 		end
 
-		if grammar_name
-		    # If it's stupid and it works, it's not stupid
-		    # This injects a const_missing handler into block's lexically enclosing Module for
-		    #  the purpose of catching any uses of the not-yet-defined recursive grammar-in-progress.
-		    # The const_missing handler creates and returns a proxy object for the missing constant, or
-		    #  passes the call to the original handler, if any.
-		    # NOTE that this is the *lexically* enclosing Module, which may in fact be Object.ancestors.first if
-		    #  the enclosing module was created with Module.new (because that doesn't create a new lexical scope)
-		    lexical_self = eval("Module.nesting.first or Object.ancestors.first", block.binding)
+		# If it's stupid and it works, it's not stupid
+		# This injects a const_missing handler into block's lexically enclosing Module for
+		#  the purpose of catching any uses of the not-yet-defined recursive grammar-in-progress.
+		# The const_missing handler creates and returns a proxy object for the missing constant, or
+		#  passes the call to the original handler, if any.
+		# NOTE that this is the *lexically* enclosing Module, which may in fact be Object.ancestors.first if
+		#  the enclosing module was created with Module.new (because that doesn't create a new lexical scope)
+		lexical_self = eval("Module.nesting.first or Object.ancestors.first", block.binding)
 
-		    # But first, store the original const_missing in order to put it back later
-		    original_const_missing = begin
-			lexical_self.singleton_method(:const_missing)
-		    rescue NameError
-			nil
-		    end
+		# But first, store the original const_missing in order to put it back later
+		original_const_missing = begin
+		    lexical_self.singleton_method(:const_missing)
+		rescue NameError
+		    nil
+		end
 
-		    # Now inject the method
-		    lexical_self.define_singleton_method(:const_missing) do |name|
-			if name == grammar_name
-			    recursion_wrapper ||= _recursion_wrapper
-			elsif original_const_missing
-			    original_const_missing.call(name)
-			else
-			    super
-			end
+		# Now inject the method
+		local_constants = {}
+		lexical_self.define_singleton_method(:const_missing) do |name|
+		    if name == grammar_name
+			recursion_wrapper ||= _recursion_wrapper
+		    elsif local_constants[name]
+			local_constants[name]
+		    elsif original_const_missing
+			original_const_missing.call(name)
+		    else
+			super
 		    end
 		end
 
-		subklass = self.evaluate(klass, _recursion_wrapper, &block)
-		if grammar_name
-		    # Restore the original const_missing
-		    if original_const_missing
-			lexical_self.define_singleton_method(:const_missing, original_const_missing)
-		    else
-			lexical_self.singleton_class.send(:undef_method, :const_missing) rescue nil
-		    end
+		subklass = self.evaluate(klass, _recursion_wrapper, local_constants, &block)
+		# Restore the original const_missing
+		if original_const_missing
+		    lexical_self.define_singleton_method(:const_missing, original_const_missing)
+		else
+		    lexical_self.singleton_class.send(:undef_method, :const_missing) rescue nil
+		end
 
+		if grammar_name
 		    # If the recursion wrapper was generated, then the block must have used it, therefore subklass is recursive
 		    if recursion_wrapper
 			subklass = post_evaluate(klass, subklass, recursion_wrapper)
@@ -125,10 +133,30 @@ module Grammar
 		    end
 
 		    subklass
+		end.tap do |_subklass|
+		    local_constants.map do |k,v|
+			_subklass.const_set(k, v)
+		    end
 		end
 	    else
 		raise ArgumentError.new("Block or elements, but not both") if elements.empty?
-		klass.with(*elements)
+
+		elements, local_constants = elements.reduce([[], {}]) do |(_elements, _local_constants), element|
+		    if element.is_a?(Hash) and (element.length==1) and element.keys.first.is_a?(Symbol)
+			const_name = element.keys.first
+			_local_constants[const_name] = element[const_name]
+			_elements.push element[const_name]
+		    else
+			_elements.push element
+		    end
+		    [_elements, _local_constants]
+		end
+
+		klass.with(*elements).tap do |_klass|
+		    local_constants.map do |k,v|
+			_klass.const_set(k, v)
+		    end
+		end
 	    end
 	end
 
