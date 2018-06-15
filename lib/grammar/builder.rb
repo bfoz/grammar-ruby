@@ -152,7 +152,11 @@ module Grammar
 		    [_elements, _local_constants]
 		end
 
-		klass.with(*elements).tap do |_klass|
+		if options.empty?
+		    klass.with(*elements)
+		else
+		    klass.with(*elements, **options)
+		end.tap do |_klass|
 		    local_constants.map do |k,v|
 			_klass.const_set(k, v)
 		    end
