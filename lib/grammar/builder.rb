@@ -98,7 +98,7 @@ module Grammar
 		    elsif original_const_missing
 			original_const_missing.call(name)
 		    else
-			super
+			super(name)	# Can't implictly pass arguments to super when using define_method()
 		    end
 		end
 
