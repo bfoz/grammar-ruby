@@ -135,6 +135,7 @@ module Grammar
 
 		    subklass
 		end.tap do |_subklass|
+		    _subklass = _subklass.grammar if _subklass.respond_to?(:grammar)
 		    local_constants.map do |k,v|
 			_subklass.const_set(k, v)
 		    end
