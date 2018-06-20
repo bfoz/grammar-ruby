@@ -38,14 +38,15 @@ module Grammar
 	    end
 	end
 
+	# @return [Grammar]	the newly created Grammar element
 	def element(arg)
 	    if arg.is_a?(Hash) and (arg.length==1) and arg.keys.first.is_a?(Symbol)
 		const_name = arg.keys.first
-		@local_constants[const_name] = arg[const_name]
-		@elements.push arg[const_name]
-	    else
-		@elements.push arg
+		arg = arg[const_name]
+		@local_constants[const_name] = arg
 	    end
+	    @elements.push arg
+	    arg
 	end
 
 	def elements(*args)
