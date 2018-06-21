@@ -1,7 +1,8 @@
-class Grammar::Recursion
+class Grammar::Recursion < SimpleDelegator
     attr_accessor :grammar
 
     def initialize(grammar=nil)
+	super
 	@grammar = grammar
     end
 
