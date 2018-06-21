@@ -21,13 +21,13 @@ class Grammar::Recursion
     	self.grammar&.respond_to?(:recursive?) and self.grammar&.recursive?
     end
 
+    def inspect
+	"<Recursion:" + self.grammar.inspect + ">"
+    end
+
     class << self
 	def with(grammar)
 	    self.new(grammar)
-	end
-
-	def inspect
-	    "<Recursion:" + self.grammar.inspect + ">"
 	end
     end
 end
