@@ -56,7 +56,7 @@ module Grammar
 
 	    attr_reader :elements
 
-	    def_delegators :@elements, :each, :first, :last
+	    def_delegators :@elements, :[], :each, :first, :last
 
 	    def with(*args)
 		Class.new(self) do
