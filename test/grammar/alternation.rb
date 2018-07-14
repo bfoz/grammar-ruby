@@ -1,7 +1,11 @@
 require 'grammar/alternation'
 require 'grammar/concatenation'
 
+require 'support/equality'
+
 RSpec.describe Grammar::Alternation do
+    it_should_behave_like 'equality'
+
     it 'must subclass with Strings' do
 	alternation = Grammar::Alternation.with('abc', 'def', 'xyz')
 	expect(alternation.elements.length).to eq(3)
@@ -11,54 +15,6 @@ RSpec.describe Grammar::Alternation do
 	it 'must be Enumerable' do
 	    klass = Grammar::Alternation.with('abc', 'def', 'xyz')
 	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
-	end
-    end
-
-    context 'class equality' do
-	it 'must be equal to an equal Alternation' do
-	    expect(Grammar::Alternation.with('a', 'b')).to eq(Grammar::Alternation.with('a', 'b'))
-	end
-
-	it 'must not be equal to an unequal Alternation' do
-	    expect(Grammar::Alternation.with('a', 'b')).not_to eq(Grammar::Alternation.with('x', 'y'))
-	end
-
-	it 'must not be equal to another Grammar class' do
-	    expect(Grammar::Alternation.with('a', 'b')).not_to eq(Grammar::Concatenation.with('a', 'b'))
-	end
-    end
-
-    context 'class case equality' do
-	it 'must be case-equal to the Grammar::Alternation Class' do
-	    expect(Grammar::Alternation.with).to be === Grammar::Alternation
-	    expect(Grammar::Alternation).to be === Grammar::Alternation.with
-	end
-
-	it 'must not be case-equal to another Grammar Class' do
-	    expect(Grammar::Alternation.with).not_to be === Grammar::Concatenation
-	    expect(Grammar::Alternation).not_to be === Grammar::Concatenation.with
-	end
-
-	it 'must not be case-equal to the String class' do
-	    expect(Grammar::Alternation.with).not_to be === String
-	end
-
-	it 'must not be case-equal to a String' do
-	    expect(Grammar::Alternation.with).not_to be === 'a'
-	end
-    end
-
-    context 'class hash equality' do
-	it 'must replace itself in a Hash' do
-	    klass = Grammar::Alternation.with('a', 'b')
-	    expect(klass).to eql(klass)
-	    expect(Grammar::Alternation.with('a', 'b')).to eql(Grammar::Alternation.with('a', 'b'))
-	end
-
-	it 'must not replace anything else' do
-	    klassA = Grammar::Alternation.with('a', 'b')
-	    klassB = Grammar::Alternation.with('a'..'z')
-	    expect(klassA).not_to eql(klassB)
 	end
     end
 
@@ -124,35 +80,12 @@ RSpec.describe Grammar::Alternation do
 	    expect(Grammar::Alternation.with('abc', 'abcd').new('abcd').length).to eq(4)
 	end
 
-	it 'must be equal to an equal instance' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc', location:1)).to eq(klass.new('abc', location:1))
-	    expect(klass.new('def', location:1)).to eq(klass.new('def', location:1))
-	end
+	context 'Generic Equality' do
+	    let(:klass) { Grammar::Alternation.with('abc', 'def') }
 
-	it 'must equal an instance at a different location' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc', location:0)).to eq(klass.new('abc', location:1))
-	end
-
-	it 'must hash-equal an instance at the same location' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc', location:1)).to eq(klass.new('abc', location:1))
-	end
-
-	it 'must not hash-equal an instance at a different location' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc', location:0)).not_to eql(klass.new('abc', location:1))
-	end
-
-	it 'must not equal an unequal match' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc', location:1)).not_to eq(klass.new('ghi', location:1))
-	end
-
-	it 'must not equal anything else' do
-	    klass = Grammar::Alternation.with('abc', 'def')
-	    expect(klass.new('abc')).not_to eq(Grammar::Concatenation.with('abcdef').new('abcdef'))
+	    it 'must be equal to an equal instance' do
+		expect(klass.new('def', location:1)).to eq(klass.new('def', location:1))
+	    end
 	end
     end
 end

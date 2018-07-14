@@ -1,7 +1,11 @@
 require 'grammar/alternation'
 require 'grammar/concatenation'
 
+require 'support/equality'
+
 RSpec.describe Grammar::Concatenation do
+    it_should_behave_like 'equality'
+
     describe 'when subclassed' do
 	it 'must subclass with Strings' do
 	    concatenation = Grammar::Concatenation.with('abc', 'def', 'xyz')
@@ -14,47 +18,7 @@ RSpec.describe Grammar::Concatenation do
 	end
     end
 
-    context 'equality' do
-	it 'must be equal to an equal Concatenation' do
-	    expect(Grammar::Concatenation.with('a', 'b')).to eq(Grammar::Concatenation.with('a', 'b'))
-	end
-
-	it 'must not be equal to an unequal Concatenation' do
-	    expect(Grammar::Concatenation.with('a', 'b')).not_to eq(Grammar::Concatenation.with('x', 'y'))
-	end
-
-	it 'must not be equal to a Alternation' do
-	    expect(Grammar::Concatenation.with('a', 'b')).not_to eq(Grammar::Alternation.with('a', 'b'))
-	end
-    end
-
-    context 'class case equality' do
-	it 'must be case-equal to the Grammar::Concatenation Class' do
-	    expect(Grammar::Concatenation.with).to be === Grammar::Concatenation
-	    expect(Grammar::Concatenation).to be === Grammar::Concatenation.with
-	end
-
-	it 'must not be case-equal to another Grammar Class' do
-	    expect(Grammar::Concatenation.with).not_to be === Grammar::Alternation
-	    expect(Grammar::Concatenation).not_to be === Grammar::Alternation.with
-	end
-
-	it 'must not be case-equal to the String class' do
-	    expect(Grammar::Concatenation.with).not_to be === String
-	end
-
-	it 'must not be case-equal to a String' do
-	    expect(Grammar::Concatenation.with).not_to be === 'a'
-	end
-    end
-
     context 'class hash equality' do
-	it 'must replace itself in a Hash' do
-	    klass = Grammar::Concatenation.with('a', 'b')
-	    expect(klass).to eql(klass)
-	    expect(Grammar::Concatenation.with('a', 'b')).to eql(Grammar::Concatenation.with('a', 'b'))
-	end
-
 	it 'must not replace anything else' do
 	    klassA = Grammar::Concatenation.with('a', 'b')
 	    klassB = Grammar::Concatenation.with('a'..'z')
@@ -132,47 +96,6 @@ RSpec.describe Grammar::Concatenation do
 	it 'must be Enumerable' do
 	    klass = Grammar::Concatenation.with('abc', 'def')
 	    expect(klass.new('abc', 'def').to_a).to eq(['abc', 'def'])
-	end
-
-	context 'equality' do
-	    it 'must equal an equal instance' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def', location:0)).to eq(klass.new('abc', 'def', location:0))
-	    end
-
-	    it 'must not equal an unequal instance' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-
-		# NOTE This is Bad because initialize() should really be checking the passed elements
-		expect(klass.new('abc', 'def', location:0)).not_to eq(klass.new('def', 'abc', location:0))
-	    end
-
-	    it 'must equal an instance at a different location' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def', location:0)).to eq(klass.new('abc', 'def', location:1))
-	    end
-
-	    it 'must not equal anything else' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def', location:1)).not_to eq(Grammar::Alternation.with('abc', 'def').new('abc', location:1))
-	    end
-	end
-
-	context 'hash equality' do
-	    it 'must replace an instance at the same location' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def', location:1)).to eql(klass.new('abc', 'def', location:1))
-	    end
-
-	    it 'must not replace an instance at a different location' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def', location:0)).not_to eql(klass.new('abc', 'def', location:1))
-	    end
-
-	    it 'must not replace anything else' do
-		klass = Grammar::Concatenation.with('abc', 'def')
-		expect(klass.new('abc', 'def')).not_to eql(Grammar::Alternation.with('abc', 'def').new('abc'))
-	    end
 	end
     end
 end

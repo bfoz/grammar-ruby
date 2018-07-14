@@ -17,10 +17,17 @@ module Grammar
 	    @match = match
 	end
 
+	# Generic equality
 	def ==(other)
-	    (other.is_a?(self.class) and (@match == other.match)) or (@match == other)
+	    ((other.is_a?(self.class) and (@match == other.match)) or (@match == other))
 	end
 
+	# Case equality
+	def ===(other)
+	    other.is_a?(self.class) and (@match == other.match)
+	end
+
+	# Hash equality
 	def eql?(other)
 	    (other.is_a?(self.class) and (self.location == other.location) and (@match == other.match)) or @match.eql?(other)
 	end
@@ -41,6 +48,21 @@ module Grammar
 	    def with(*args)
 		Class.new(self) do
 		    @elements = args.clone
+
+		    class << self
+			# Generic equality
+			def ==(other)
+			    other.is_a?(Class) and (other <= Alternation) and (self.elements === other.elements)
+			end
+
+			# Case equality
+			def ===(other)
+			    other.is_a?(Class) and (other.equal?(Alternation) or ((other < Alternation) and (self.elements === other.elements)))
+			end
+
+			# Hash equality
+			alias eql? ==
+		    end
 		end
 	    end
 
@@ -48,26 +70,13 @@ module Grammar
 		super or "Alternation<#{self.object_id}>"
 	    end
 
-	    # Generic equality
-	    def ==(other)
-		return false unless other.is_a?(Class)
-		(other.equal?(Alternation) || (other < Alternation)) && (elements == other.elements)
+	    # Case equality
+	    def ===(other)
+		other.is_a?(Class) and (other <= self)
 	    end
-
-	    # Hash equality
-	    alias eql? ==
 
 	    def hash
 		@elements.map(&:hash).reduce(&:+)
-	    end
-
-	    # Case equality
-	    def ===(other)
-		if other.is_a?(Class) and (other.equal?(Alternation) || (other.respond_to?(:<) and (other < Alternation)))
-		    true
-		else
-		    super
-		end
 	    end
 
 	    def |(other)

@@ -17,10 +17,15 @@ module Grammar
 	    @location = location
 	end
 
+	# Generic equality
 	def ==(other)
-	    other.respond_to?(:elements) ? (self.elements == other.elements) : (self.elements.join == other)
+	    (other.is_a?(self.class) and other.respond_to?(:elements) and (self.elements == other.elements)) or (self.elements.join == other)
 	end
 
+	# Case equality
+	alias === ==
+
+	# Hash equality
 	def eql?(other)
 	    if other.is_a?(String)
 		self.elements.join == other
@@ -61,6 +66,21 @@ module Grammar
 	    def with(*args)
 		Class.new(self) do
 		    @elements = args.clone
+
+		    class << self
+			# Generic equality
+			def ==(other)
+			    other.is_a?(Class) and (other <= Concatenation) and (self.elements === other.elements)
+			end
+
+			# Case equality
+			def ===(other)
+			    other.is_a?(Class) and (other.equal?(Concatenation) or ((other < Concatenation) and (self.elements === other.elements)))
+			end
+
+			# Hash equality
+			alias eql? ==
+		    end
 		end
 	    end
 
@@ -68,26 +88,13 @@ module Grammar
 		super or "Concatenation<#{self.object_id}>"
 	    end
 
-	    # Generic equality
-	    def ==(other)
-		return false unless other.is_a?(Class)
-		(other.equal?(Concatenation) || (other < Concatenation)) && (elements == other.elements)
+	    # Case equality
+	    def ===(other)
+		other.is_a?(Class) and (other <= self)
 	    end
-
-	    # Hash equality
-	    alias eql? ==
 
 	    def hash
 		@elements.map(&:hash).reduce(&:+)
-	    end
-
-	    # Case equality
-	    def ===(other)
-		if other.is_a?(Class) and (other.equal?(Concatenation) || (other.respond_to?(:<) and (other < Concatenation)))
-		    true
-		else
-		    super
-		end
 	    end
 
 	    def |(other)

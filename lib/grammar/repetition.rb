@@ -14,6 +14,26 @@ class Grammar::Repetition
 	@location = location
     end
 
+    # Generic equality
+    def ==(other)
+	if other.is_a?(self.class)
+	    @elements == other.elements
+	elsif other.is_a?(String)
+	    @elements.join == other
+	end
+    end
+
+    # Case equality
+    def ===(other)
+	other.is_a?(self.class) and (@elements == other.elements)
+    end
+
+    # Hash equality
+    def eql?(other)
+	(other.is_a?(self.class) and (self.location == other.location) and (@grammar == other.grammar)) or @grammar.eql?(other)
+    end
+
+
     class << self
 	# @return [Alternation, Concatenation] The repeated grammar element
 	attr_reader :grammar
@@ -42,7 +62,27 @@ class Grammar::Repetition
 		@grammar = grammar
 		@maximum = maximum
 		@minimum = minimum
+
+		class << self
+		    # Generic equality
+		    def ==(other)
+			other.is_a?(Class) and (other <= Grammar::Repetition) and (self.grammar === other.grammar) and (self.maximum == other.maximum) and (self.minimum == other.minimum)
+		    end
+
+		    # Case equality
+		    def ===(other)
+			other.is_a?(Class) and (other.equal?(Grammar::Repetition) or ((other < Grammar::Repetition) and (self.grammar === other.grammar) and (self.maximum == other.maximum) and (self.minimum == other.minimum)))
+		    end
+
+		    # Hash equality
+		    alias eql? ==
+		end
 	    end
+	end
+
+	# Case equality
+	def ===(other)
+	    other.is_a?(Class) and (other <= self)
 	end
 
 	# @return [Array] A single-item Array containing `#grammar`. For compatability with {Alternation} and {Concatenation}.
@@ -50,26 +90,8 @@ class Grammar::Repetition
 	    [self.grammar]
 	end
 
-	# Generic equality
-	def ==(other)
-	    return false unless other.is_a?(Class)
-	    (other.equal?(Grammar::Repetition) || (other < Grammar::Repetition)) && (self.grammar == other.grammar)
-	end
-
-	# Hash equality
-	alias eql? ==
-
 	def hash
 	    self.elements.map(&:hash).reduce(&:+)
-	end
-
-	# Case equality
-	def ===(other)
-	    if other.is_a?(Class) and (other.equal?(Grammar::Repetition) || (other.respond_to?(:<) and (other < Grammar::Repetition)))
-		true
-	    else
-		super
-	    end
 	end
 
 	def |(other)

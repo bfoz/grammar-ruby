@@ -1,6 +1,10 @@
 require 'grammar/repetition'
 
+require 'support/equality'
+
 RSpec.describe Grammar::Repetition do
+    it_should_behave_like 'equality'
+
     describe 'when subclassed' do
 	it 'must have a maximum' do
 	    klass = Grammar::Repetition.at_most(42, 'abc')
@@ -30,54 +34,6 @@ RSpec.describe Grammar::Repetition do
 	it 'must be Enumerable' do
 	    klass = Grammar::Repetition.optional('abc')
 	    expect(klass.new('abc', 'abc').to_a).to eq(['abc', 'abc'])
-	end
-    end
-
-    context 'class equality' do
-	it 'must be equal to an equal Alternation' do
-	    expect(Grammar::Repetition.any('a')).to eq(Grammar::Repetition.any('a'))
-	end
-
-	it 'must not be equal to an unequal Alternation' do
-	    expect(Grammar::Repetition.any('a')).not_to eq(Grammar::Repetition.any('z'))
-	end
-
-	it 'must not be equal to another Grammar class' do
-	    expect(Grammar::Repetition.any('a')).not_to eq(Grammar::Concatenation.with('a', 'b'))
-	end
-    end
-
-    context 'class case equality' do
-	it 'must be case-equal to the Grammar::Repetition Class' do
-	    expect(Grammar::Repetition.any('a')).to be === Grammar::Repetition
-	    expect(Grammar::Repetition).to be === Grammar::Repetition.any('a')
-	end
-
-	it 'must not be case-equal to another Grammar Class' do
-	    expect(Grammar::Repetition.any('a')).not_to be === Grammar::Concatenation
-	    expect(Grammar::Repetition).not_to be === Grammar::Concatenation.with
-	end
-
-	it 'must not be case-equal to the String class' do
-	    expect(Grammar::Repetition.any('a')).not_to be === String
-	end
-
-	it 'must not be case-equal to a String' do
-	    expect(Grammar::Repetition.any('a')).not_to be === 'a'
-	end
-    end
-
-    context 'class hash equality' do
-	it 'must replace itself in a Hash' do
-	    klass = Grammar::Repetition.any('a')
-	    expect(klass).to eql(klass)
-	    expect(Grammar::Repetition.any('a')).to eql(Grammar::Repetition.any('a'))
-	end
-
-	it 'must not replace anything else' do
-	    klassA = Grammar::Repetition.any('a')
-	    klassB = Grammar::Repetition.any('z')
-	    expect(klassA).not_to eql(klassB)
 	end
     end
 
