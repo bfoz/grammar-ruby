@@ -6,6 +6,10 @@ require 'support/equality'
 RSpec.describe Grammar::Concatenation do
     it_should_behave_like 'equality'
 
+    it 'must stringify' do
+	expect(Grammar::Concatenation.to_s).to eq('Grammar::Concatenation')
+    end
+
     describe 'when subclassed' do
 	it 'must subclass with Strings' do
 	    concatenation = Grammar::Concatenation.with('abc', 'def', 'xyz')

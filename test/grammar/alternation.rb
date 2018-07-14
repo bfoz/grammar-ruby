@@ -6,6 +6,10 @@ require 'support/equality'
 RSpec.describe Grammar::Alternation do
     it_should_behave_like 'equality'
 
+    it 'must stringify' do
+	expect(Grammar::Alternation.to_s).to eq('Grammar::Alternation')
+    end
+
     it 'must subclass with Strings' do
 	alternation = Grammar::Alternation.with('abc', 'def', 'xyz')
 	expect(alternation.elements.length).to eq(3)
