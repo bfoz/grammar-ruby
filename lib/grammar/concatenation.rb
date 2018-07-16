@@ -39,7 +39,7 @@ module Grammar
 	end
 
 	def inspect(indent=0)
-	    prefix = "#<#{self.class.name}@#{self.location}"
+	    prefix = "#<#{self.class.label}@#{self.location}"
 	    parts = self.elements.flat_map do |e|
 		e.inspect(indent+1) rescue ("\t"*(indent+1)) + e.inspect
 	    end
@@ -84,10 +84,6 @@ module Grammar
 		end
 	    end
 
-	    def name
-		super or "Concatenation<#{self.object_id}>"
-	    end
-
 	    # Case equality
 	    def ===(other)
 		other.is_a?(Class) and (other <= self)
@@ -110,7 +106,7 @@ module Grammar
 	    end
 
 	    def label
-		(respond_to?(:name) && name) || object_id
+		(respond_to?(:name) && name) || "Concatenation<#{self.object_id}>"
 	    end
 
 	    # @return [Bool]	Returns true if the first element is recursive
@@ -133,7 +129,7 @@ module Grammar
 	    end
 
 	    def inspect
-		[self.name, self.to_re].compact.join(':')
+		[self.label, self.to_re].compact.join(':')
 	    end
 
 	    def to_s
