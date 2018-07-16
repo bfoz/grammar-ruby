@@ -97,8 +97,12 @@ module Grammar
 		Alternation.with(self, other)
 	    end
 
+	    # Create a new {Concatenation} using the given grammar element
+	    # @note The receiver will be splatted into the new {Alternation} if it hasn't been named
+	    # @return [Concatenation]
 	    def +(other)
-		self.with(*elements, other)
+		_elements = self.name ? [self] : elements
+		self.with(*_elements, other)
 	    end
 
 	    def drop(n=1)

@@ -75,8 +75,12 @@ module Grammar
 		@elements.map(&:hash).reduce(&:+)
 	    end
 
+	    # Create a new {Alternation} using the given grammar element
+	    # @note The receiver will be splatted into the new {Alternation} if it hasn't been named
+	    # @return [Alternation]
 	    def |(other)
-		self.with(*elements, other)
+		_elements = self.name ? [self] : elements
+		self.with(*_elements, other)
 	    end
 
 	    def +(other)
