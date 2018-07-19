@@ -100,8 +100,9 @@ RSpec.shared_examples 'equality' do
 
 	# Instance
 
-	it 'must not be case-equal to an instance' do
-	    expect(grammar_klass).not_to be === match_instance
+	it 'must be case-equal to an instance' do
+	    # This behavior matches Struct === Struct.new(:foo).new(42)
+	    expect(grammar_klass).to be === match_instance
 	end
 
 	# String
@@ -181,6 +182,13 @@ RSpec.shared_examples 'equality' do
 
 	    it 'must not be case-equal to a different subclass' do
 		is_expected.not_to be === unequal_subklass
+	    end
+
+	    # Instance
+
+	    it 'must be case-equal to an instance' do
+		# This behavior matches klass = Struct.new(:foo); klass === klass.new(42)
+		is_expected.to be === match_instance
 	    end
 
 	    # String

@@ -71,7 +71,11 @@ class Grammar::Repetition
 
 		    # Case equality
 		    def ===(other)
-			other.is_a?(Class) and (other.equal?(Grammar::Repetition) or ((other < Grammar::Repetition) and (self.grammar === other.grammar) and (self.maximum == other.maximum) and (self.minimum == other.minimum)))
+			if other.is_a?(Class)
+			    other.equal?(Grammar::Repetition) or ((other < Grammar::Repetition) and (self.grammar === other.grammar) and (self.maximum == other.maximum) and (self.minimum == other.minimum))
+			else
+			    other.is_a?(self)							# Classes are always triple-equal to their instances
+			end
 		    end
 
 		    # Hash equality
@@ -82,7 +86,7 @@ class Grammar::Repetition
 
 	# Case equality
 	def ===(other)
-	    other.is_a?(Class) and (other <= self)
+	    (other.is_a?(Class) and (other <= self)) or other.is_a?(self)
 	end
 
 	# @return [Array] A single-item Array containing `#grammar`. For compatability with {Alternation} and {Concatenation}.

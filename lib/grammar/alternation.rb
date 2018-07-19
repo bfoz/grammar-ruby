@@ -57,7 +57,8 @@ module Grammar
 
 			# Case equality
 			def ===(other)
-			    other.is_a?(Class) and (other.equal?(Alternation) or ((other < Alternation) and (self.elements === other.elements)))
+			    (other.is_a?(Class) and (other.equal?(Alternation) or ((other < Alternation) and (self.elements === other.elements)))) or
+				other.is_a?(self)							# Classes are always triple-equal to their instances
 			end
 
 			# Hash equality
@@ -68,7 +69,7 @@ module Grammar
 
 	    # Case equality
 	    def ===(other)
-		other.is_a?(Class) and (other <= self)
+		(other.is_a?(Class) and (other <= self)) or other.is_a?(self)
 	    end
 
 	    def hash
