@@ -1,6 +1,6 @@
-module Grammar; end
+require_relative 'base'
 
-class Grammar::Repetition
+class Grammar::Repetition < Grammar::Base
     include Enumerable
     extend Forwardable
 
@@ -84,11 +84,6 @@ class Grammar::Repetition
 	    end
 	end
 
-	# Case equality
-	def ===(other)
-	    (other.is_a?(Class) and (other <= self)) or other.is_a?(self)
-	end
-
 	# @return [Array] A single-item Array containing `#grammar`. For compatability with {Alternation} and {Concatenation}.
 	def elements
 	    [self.grammar]
@@ -96,14 +91,6 @@ class Grammar::Repetition
 
 	def hash
 	    self.elements.map(&:hash).reduce(&:+)
-	end
-
-	def |(other)
-	    Grammar::Alternation.with(self, other)
-	end
-
-	def +(other)
-	    Grammar::Concatenation.with(self, other)
 	end
 
 	# Zero or more repetitions

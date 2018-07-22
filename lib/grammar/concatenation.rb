@@ -1,7 +1,8 @@
+require_relative 'base'
 require_relative 'repeatable'
 
 module Grammar
-    class Concatenation
+    class Concatenation < Base
 	include Enumerable
 	extend Forwardable
 
@@ -85,17 +86,8 @@ module Grammar
 		end
 	    end
 
-	    # Case equality
-	    def ===(other)
-		(other.is_a?(Class) and (other <= self)) or other.is_a?(self)
-	    end
-
 	    def hash
 		@elements.map(&:hash).reduce(&:+)
-	    end
-
-	    def |(other)
-		Alternation.with(self, other)
 	    end
 
 	    # Create a new {Concatenation} using the given grammar element
@@ -127,10 +119,6 @@ module Grammar
 	    def to_re
 		elements_to_re = self.elements.compact.map {|e| e.to_re rescue e.to_s}.map {|a| a=="\n" ? "\\n" : a}
 		elements_to_re.join
-	    end
-
-	    def to_regexp
-		Regexp.new(self.to_re)
 	    end
 
 	    def inspect

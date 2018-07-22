@@ -1,9 +1,10 @@
 require 'forwardable'
 
+require_relative 'base'
 require_relative 'repeatable'
 
 module Grammar
-    class Alternation
+    class Alternation < Base
 	extend Forwardable
 
 	attr_reader :location
@@ -67,11 +68,6 @@ module Grammar
 		end
 	    end
 
-	    # Case equality
-	    def ===(other)
-		(other.is_a?(Class) and (other <= self)) or other.is_a?(self)
-	    end
-
 	    def hash
 		@elements.map(&:hash).reduce(&:+)
 	    end
@@ -82,10 +78,6 @@ module Grammar
 	    def |(other)
 		_elements = self.name ? [self] : elements
 		self.with(*_elements, other)
-	    end
-
-	    def +(other)
-		Concatenation.new(self, other)
 	    end
 
 	    def label
@@ -106,10 +98,6 @@ module Grammar
 		else
 		    elements_to_re
 		end
-	    end
-
-	    def to_regexp
-		Regexp.new(self.to_re)
 	    end
 
 	    def inspect
