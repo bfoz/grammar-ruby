@@ -141,8 +141,6 @@ module Grammar
 		    end
 		end
 	    else
-		raise ArgumentError.new("Block or elements, but not both") if elements.empty?
-
 		elements, local_constants = elements.reduce([[], {}]) do |(_elements, _local_constants), element|
 		    if element.is_a?(Hash) and (element.length==1) and element.keys.first.is_a?(Symbol)
 			const_name = element.keys.first
