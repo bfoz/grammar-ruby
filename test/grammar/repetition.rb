@@ -5,6 +5,14 @@ require 'support/equality'
 RSpec.describe Grammar::Repetition do
     it_should_behave_like 'equality'
 
+    it 'must not destructure' do
+	expect(Grammar::Repetition.to_a).to be_nil
+    end
+
+    it 'must not splat' do
+	expect(*Grammar::Repetition).to eq(Grammar::Repetition)
+    end
+
     describe 'when subclassed' do
 	it 'must have a maximum' do
 	    klass = Grammar::Repetition.at_most(42, 'abc')
@@ -34,6 +42,14 @@ RSpec.describe Grammar::Repetition do
 	it 'must be Enumerable' do
 	    klass = Grammar::Repetition.optional('abc')
 	    expect(klass.new('abc', 'abc').to_a).to eq(['abc', 'abc'])
+	end
+
+	it 'must destructure' do
+	    expect(Grammar::Repetition.optional('abc').to_a).to eq(['abc'])
+	end
+
+	it 'must splat' do
+	    expect(*Grammar::Repetition.optional('abc')).to eq('abc')
 	end
     end
 
@@ -115,6 +131,18 @@ RSpec.describe Grammar::Repetition do
 	    it 'must convert an optional' do
 		expect(subject.optional.to_regexp).to eq(/(ab)?/)
 	    end
+	end
+    end
+
+    context 'when an instance' do
+	subject(:klass) { Grammar::Repetition.optional('abc') }
+
+	it 'must destructure' do
+	    expect(klass.new('abc').to_a).to eq(['abc'])
+	end
+
+	it 'must splat' do
+	    expect(*klass.new('abc')).to eq('abc')
 	end
     end
 end

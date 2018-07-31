@@ -15,6 +15,14 @@ RSpec.describe Grammar::Concatenation do
 	expect(Grammar::Concatenation).to be >= Grammar::Concatenation.with('abc', 'def', 'xyz')
     end
 
+    it 'must not destructure' do
+	expect(Grammar::Concatenation.to_a).to be_nil
+    end
+
+    it 'must not splat' do
+	expect(*Grammar::Concatenation).to eq(Grammar::Concatenation)
+    end
+
     describe 'when subclassed' do
 	subject(:klass) { Grammar::Concatenation.with('abc', 'def', 'xyz') }
 
@@ -29,6 +37,14 @@ RSpec.describe Grammar::Concatenation do
 	it 'must be a subclass of Concatenation' do
 	    expect(klass).to be < Grammar::Concatenation
 	    expect(klass).to be <= Grammar::Concatenation
+	end
+
+	it 'must destructure' do
+	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
+
+	it 'must splat' do
+	    expect([*klass]).to eq(['abc', 'def', 'xyz'])
 	end
     end
 
@@ -102,14 +118,22 @@ RSpec.describe Grammar::Concatenation do
     end
 
     describe 'when an instance' do
+    	subject(:klass) { Grammar::Concatenation.with('abc', 'def') }
+
 	it 'must have a length' do
-	    klass = Grammar::Concatenation.with('abc', 'def')
 	    expect(klass.new('abc', 'def').length).to eq(6)
 	end
 
 	it 'must be Enumerable' do
-	    klass = Grammar::Concatenation.with('abc', 'def')
 	    expect(klass.new('abc', 'def').to_a).to eq(['abc', 'def'])
+	end
+
+	it 'must destructure' do
+	    expect(klass.new('abc', 'def').to_a).to eq(['abc', 'def'])
+	end
+
+	it 'must splat' do
+	    expect([*klass.new('abc', 'def')]).to eq(['abc', 'def'])
 	end
     end
 end

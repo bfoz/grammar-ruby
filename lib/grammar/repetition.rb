@@ -181,6 +181,12 @@ class Grammar::Repetition < Grammar::Base
 
 	# @endgroup
 
+	# Allow explicit conversion to {Array}
+	# @return [Array]
+	def to_a
+	    self.grammar ? [self.grammar] : nil
+	end
+
 	# @return [String]	Returns a repetition suffix, or nil if no suffix is required
 	private def regex_repetition_suffix
 	    if self.maximum and self.minimum

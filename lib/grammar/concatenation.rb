@@ -116,6 +116,12 @@ module Grammar
 		elements.any? {|element| element.is_a?(Grammar::Recursion) or (element.respond_to?(:recursive?) and element.recursive?) }
 	    end
 
+	    # Allow explicit conversion to {Array}
+	    # @return [Array]
+	    def to_a
+		self.elements ? self.elements : nil
+	    end
+
 	    def to_re
 		elements_to_re = self.elements.compact.map {|e| e.to_re rescue e.to_s}.map {|a| a=="\n" ? "\\n" : a}
 		elements_to_re.join

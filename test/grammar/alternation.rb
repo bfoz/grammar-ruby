@@ -20,6 +20,14 @@ RSpec.describe Grammar::Alternation do
 	expect(Grammar::Alternation).to be >= Grammar::Alternation.with('abc', 'def', 'xyz')
     end
 
+    it 'must not destructure' do
+	expect(Grammar::Alternation.to_a).to be_nil
+    end
+
+    it 'must not splat' do
+	expect(*Grammar::Alternation).to eq(Grammar::Alternation)
+    end
+
     describe 'when subclassed' do
 	subject(:klass) { Grammar::Alternation.with('abc', 'def', 'xyz') }
 
@@ -30,6 +38,14 @@ RSpec.describe Grammar::Alternation do
 	it 'must be a subclass of Alternation' do
 	    expect(klass).to be < Grammar::Alternation
 	    expect(klass).to be <= Grammar::Alternation
+	end
+
+	it 'must destructure' do
+	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
+
+	it 'must splat' do
+	    expect([*klass]).to eq(['abc', 'def', 'xyz'])
 	end
     end
 
@@ -90,9 +106,19 @@ RSpec.describe Grammar::Alternation do
     end
 
     describe 'when an instance' do
+	subject(:klass) { Grammar::Alternation.with('abc', 'abcd') }
+
 	it 'must have a length' do
-	    expect(Grammar::Alternation.with('abc', 'abcd').new('abc').length).to eq(3)
-	    expect(Grammar::Alternation.with('abc', 'abcd').new('abcd').length).to eq(4)
+	    expect(klass.new('abc').length).to eq(3)
+	    expect(klass.new('abcd').length).to eq(4)
+	end
+
+	it 'must destructure' do
+	    expect(klass.new('abc').to_a).to eq(['abc'])
+	end
+
+	it 'must splat' do
+	    expect(*klass.new('abc')).to eq('abc')
 	end
 
 	context 'Generic Equality' do

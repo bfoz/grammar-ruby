@@ -37,6 +37,12 @@ module Grammar
 	    ("\t"*indent) + "#<#{self.class.label}@#{self.location}:'#{self.match.inspect}'>"
 	end
 
+	# Allow explicit conversion to {Array}
+	# @return [Array]
+	def to_a
+	    [self.match]
+	end
+
 	class << self
 	    include Enumerable
 	    extend Forwardable
@@ -89,6 +95,12 @@ module Grammar
 		elements.any? do |element|
 		    element.is_a?(Grammar::Recursion) or (element.respond_to?(:left_recursive) and element.left_recursive?)
 		end
+	    end
+
+	    # Allow explicit conversion to {Array}
+	    # @return [Array]
+	    def to_a
+		self.elements ? self.elements : nil
 	    end
 
 	    def to_re
