@@ -15,10 +15,21 @@ RSpec.describe Grammar::Alternation do
 	expect(alternation.elements.length).to eq(3)
     end
 
+    it 'must be a superclass of its subclasses' do
+	expect(Grammar::Alternation).to be > Grammar::Alternation.with('abc', 'def', 'xyz')
+	expect(Grammar::Alternation).to be >= Grammar::Alternation.with('abc', 'def', 'xyz')
+    end
+
     describe 'when subclassed' do
+	subject(:klass) { Grammar::Alternation.with('abc', 'def', 'xyz') }
+
 	it 'must be Enumerable' do
-	    klass = Grammar::Alternation.with('abc', 'def', 'xyz')
 	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
+
+	it 'must be a subclass of Alternation' do
+	    expect(klass).to be < Grammar::Alternation
+	    expect(klass).to be <= Grammar::Alternation
 	end
     end
 

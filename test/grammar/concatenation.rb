@@ -10,15 +10,25 @@ RSpec.describe Grammar::Concatenation do
 	expect(Grammar::Concatenation.to_s).to eq('Grammar::Concatenation')
     end
 
+    it 'must be a superclass of its subclasses' do
+	expect(Grammar::Concatenation).to be > Grammar::Concatenation.with('abc', 'def', 'xyz')
+	expect(Grammar::Concatenation).to be >= Grammar::Concatenation.with('abc', 'def', 'xyz')
+    end
+
     describe 'when subclassed' do
+	subject(:klass) { Grammar::Concatenation.with('abc', 'def', 'xyz') }
+
 	it 'must subclass with Strings' do
-	    concatenation = Grammar::Concatenation.with('abc', 'def', 'xyz')
-	    expect(concatenation.elements.length).to eq(3)
+	    expect(klass.elements.length).to eq(3)
 	end
 
 	it 'must be Enumerable' do
-	    klass = Grammar::Concatenation.with('abc', 'def', 'xyz')
 	    expect(klass.to_a).to eq(['abc', 'def', 'xyz'])
+	end
+
+	it 'must be a subclass of Concatenation' do
+	    expect(klass).to be < Grammar::Concatenation
+	    expect(klass).to be <= Grammar::Concatenation
 	end
     end
 
