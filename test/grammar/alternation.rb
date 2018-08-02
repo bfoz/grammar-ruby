@@ -2,9 +2,11 @@ require 'grammar/alternation'
 require 'grammar/concatenation'
 
 require 'support/equality'
+require 'support/repeatable'
 
 RSpec.describe Grammar::Alternation do
     it_should_behave_like 'equality'
+    it_should_behave_like 'repeatable'
 
     it 'must stringify' do
 	expect(Grammar::Alternation.to_s).to eq('Grammar::Alternation')

@@ -24,13 +24,13 @@ module Grammar::Repeatable
     # @param [Integer]  Accept up to, but not including, maximum repetitions
     # @return [Repetition]
     def less_than(maximum)
-	Grammar::Repetition.less_than(self)
+	Grammar::Repetition.less_than(maximum, self)
     end
 
     # @param [Integer]  Accept more than minimum repetitions
     # @return [Repetition]
     def more_than(minimum)
-	Grammar::Repetition.more_than(self)
+	Grammar::Repetition.more_than(minimum, self)
     end
 
     # Require at least one repetition
