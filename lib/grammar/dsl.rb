@@ -16,6 +16,10 @@ module Grammar
 	    include Grammar::DSL
 	end
 
+	refine Regexp do
+	    include Grammar::Repeatable
+	end
+
 	refine String do
 	    include Grammar::Repeatable
 
