@@ -132,7 +132,7 @@ module Grammar
 	    end
 
 	    def to_s
-		self.elements ? self.to_re : super
+		self.label or super
 	    end
 	end
     end
