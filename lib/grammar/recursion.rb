@@ -7,7 +7,8 @@ class Grammar::Recursion < SimpleDelegator
     end
 
     def ==(other)
-	self.grammar == other.grammar
+	# The superclass method checks for object_id equality, which allows for short-circuit logic when +other+ is the same object as +self+
+	super or (self.grammar == other.grammar)
     rescue NoMethodError
     	nil
     end
