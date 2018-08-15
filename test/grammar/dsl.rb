@@ -166,7 +166,7 @@ RSpec.describe Grammar::DSL do
 		    elements '(', Rule0, ')'
 		end
 	    end
-	    expect(test_module::Rule0).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('(', test_module::Rule0, ')')))
+	    expect(test_module::Rule0).to eq(Grammar::Concatenation.with('(', Grammar::Recursion.with(test_module::Rule0), ')'))
 	end
 
 	context 'Anonymous Recursion' do
@@ -229,7 +229,7 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule).to eq(Grammar::Recursion.with(Grammar::Alternation.with('abc', 'def', klassA, klassB)))
+		expect(test_module::Rule).to eq(Grammar::Alternation.with('abc', 'def', klassA, klassB))
 	    end
 
 	    it 'must build a mutually recursive Concatenation' do
@@ -244,7 +244,7 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('abc', klassA, klassB, 'xyz')))
+		expect(test_module::Rule).to eq(Grammar::Concatenation.with('abc', klassA, klassB, 'xyz'))
 	    end
 	end
 
@@ -255,7 +255,12 @@ RSpec.describe Grammar::DSL do
 			elements Rule0, ',', Rule0
 		    end
 		end
-		expect(test_module::Rule0).to eq(Grammar::Recursion.with(Grammar::Concatenation.with(test_module::Rule0, ',', test_module::Rule0)))
+		expect(test_module::Rule0).to eq(Grammar::Concatenation.with(
+						    Grammar::Recursion.with(test_module::Rule0),
+						    ',',
+						    Grammar::Recursion.with(test_module::Rule0)
+						 )
+						)
 	    end
 
 	    it 'must build an Alternation with a nested outer-recursive Concatenation' do
@@ -268,11 +273,9 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule0).to eq(Grammar::Recursion.with(
-						    Grammar::Concatenation.with(
-							Grammar::Alternation.with('abc', 'def'),
-							Grammar::Concatenation.with(',', test_module::Rule0).any
-						    )
+		expect(test_module::Rule0).to eq(Grammar::Concatenation.with(
+						    Grammar::Alternation.with('abc', 'def'),
+						    Grammar::Concatenation.with(',', Grammar::Recursion.with(test_module::Rule0)).any
 						 )
 						)
 	    end
@@ -286,11 +289,9 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule0).to eq(Grammar::Recursion.with(
-						    Grammar::Concatenation.with(
-							'abc',
-							Grammar::Concatenation.with(',', test_module::Rule0).any
-						    )
+		expect(test_module::Rule0).to eq(Grammar::Concatenation.with(
+						    'abc',
+						    Grammar::Concatenation.with(',', Grammar::Recursion.with(test_module::Rule0)).any
 						 )
 						)
 	    end
@@ -306,14 +307,12 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule0).to eq(Grammar::Recursion.with(
-						    Grammar::Concatenation.with(
-							Grammar::Alternation.with('abc', 'def'),
-							Grammar::Alternation.with(
-							    Grammar::Concatenation.with(',', test_module::Rule0),
-							    Grammar::Concatenation.with('|', test_module::Rule0)
-							).any
-						    )
+		expect(test_module::Rule0).to eq(Grammar::Concatenation.with(
+						    Grammar::Alternation.with('abc', 'def'),
+						    Grammar::Alternation.with(
+							Grammar::Concatenation.with(',', Grammar::Recursion.with(test_module::Rule0)),
+							Grammar::Concatenation.with('|', Grammar::Recursion.with(test_module::Rule0))
+						    ).any
 						 )
 						)
 	    end
@@ -330,14 +329,12 @@ RSpec.describe Grammar::DSL do
 		    end
 		end
 
-		expect(test_module::Rule0).to eq(Grammar::Recursion.with(
-						    Grammar::Concatenation.with(
-							Grammar::Alternation.with('abc', 'def', Grammar::Concatenation.with('(', test_module::Rule0, ')')),
-							Grammar::Alternation.with(
-							    Grammar::Concatenation.with(',', test_module::Rule0),
-							    Grammar::Concatenation.with('|', test_module::Rule0)
-							).any
-						    )
+		expect(test_module::Rule0).to eq(Grammar::Concatenation.with(
+						    Grammar::Alternation.with('abc', 'def', Grammar::Concatenation.with('(', Grammar::Recursion.with(test_module::Rule0), ')')),
+						    Grammar::Alternation.with(
+							Grammar::Concatenation.with(',', Grammar::Recursion.with(test_module::Rule0)),
+							Grammar::Concatenation.with('|', Grammar::Recursion.with(test_module::Rule0))
+						    ).any
 						 )
 						)
 	    end

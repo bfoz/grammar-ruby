@@ -115,6 +115,7 @@ module Grammar
 		    # If the recursion wrapper was generated, then the block must have used it, therefore subklass is recursive
 		    if recursion_wrapper
 			subklass = post_evaluate(klass, subklass, recursion_wrapper)
+			subklass = subklass.grammar if subklass == recursion_wrapper
 		    end
 
 		    # Find the *actual* enclosing scope to assign the resulting constant to. If block was
