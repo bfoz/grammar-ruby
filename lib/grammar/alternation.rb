@@ -90,12 +90,14 @@ module Grammar
 		(respond_to?(:name) && name) || "Alternation<#{self.object_id}>"
 	    end
 
+	    # @note An {Alternation} is left-recursive when ever any of its elements are in any way recursive
 	    # @return [Bool]	Returns true if any element is recursive
-	    def left_recursive?
+	    def recursive?
 		elements.any? do |element|
-		    element.is_a?(Grammar::Recursion) or (element.respond_to?(:left_recursive) and element.left_recursive?)
+		    element.is_a?(Grammar::Recursion) or (element.respond_to?(:recursive?) and element.recursive?) or (element.respond_to?(:left_recursive) and element.left_recursive?)
 		end
 	    end
+	    alias left_recursive? recursive?
 
 	    # Allow explicit conversion to {Array}
 	    # @return [Array]

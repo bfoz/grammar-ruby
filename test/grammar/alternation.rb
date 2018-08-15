@@ -49,6 +49,30 @@ RSpec.describe Grammar::Alternation do
 	it 'must splat' do
 	    expect([*klass]).to eq(['abc', 'def', 'xyz'])
 	end
+
+	context Grammar::Recursion do
+	    let(:wrapper) { Grammar::Recursion.new }
+
+	    it 'must be recursive when directly recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', wrapper, 'xyz')
+		expect(wrapper.grammar).to be_recursive
+	    end
+
+	    it 'it must be recursive when indirectly recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', Grammar::Concatenation.with('def', wrapper), 'xyz')
+		expect(wrapper.grammar).to be_recursive
+	    end
+
+	    it 'it must be left recursive when directly recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', wrapper, 'xyz')
+		expect(wrapper.grammar).to be_left_recursive
+	    end
+
+	    it 'it must be left recursive when indirectly recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', Grammar::Concatenation.with('def', wrapper), 'xyz')
+		expect(wrapper.grammar).to be_left_recursive
+	    end
+	end
     end
 
     it 'must compose with another Alternation' do
