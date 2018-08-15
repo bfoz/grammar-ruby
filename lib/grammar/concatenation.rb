@@ -9,7 +9,7 @@ module Grammar
 	attr_reader :elements
 	attr_reader :location
 
-	def_delegators :@elements, :[], :each, :first, :last
+	def_delegators :@elements, :[], :each, :first, :last, :length
 
 	def initialize(*args, location:nil)
 	    raise ArgumentError.new("Need #{self.class.elements.length} arguments, got #{args.length}") unless args.length == self.class.elements.length
@@ -62,7 +62,7 @@ module Grammar
 
 	    attr_reader :elements
 
-	    def_delegators :@elements, :[], :each, :first, :last
+	    def_delegators :@elements, :[], :each, :first, :last, :length
 
 	    def with(*args)
 		Class.new(self) do
