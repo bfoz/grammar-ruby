@@ -123,7 +123,17 @@ module Grammar
 		    #  module. Otherwise, it will end up being the same as lexical_self, but that's fine because in
 		    #  that case that's where the new constant needs to go anyway.
 		    enclosing_module = eval("self", block.binding)
-		    enclosing_module.const_set(grammar_name, subklass)
+
+		    # If the enclosing module is actually another Builder then this grammar_name needs to be set on
+		    #  the class that the enclosing Builder is working on, which isn't available yet. So, reach
+		    #  into the enclosing Builder and rudely add to its set of local constants that will be added
+		    #  to the final class.
+		    if enclosing_module.is_a?(self)
+			parent_constants = enclosing_module.instance_variable_get(:@local_constants)
+			parent_constants[grammar_name] ||= subklass
+		    else
+			enclosing_module.const_set(grammar_name, subklass)
+		    end
 		else
 		    # Finalize the recursion proxy in case it was used
 		    if block.arity.nonzero?

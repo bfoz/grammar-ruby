@@ -127,6 +127,21 @@ RSpec.describe Grammar::DSL do
 	end
     end
 
+    context 'Nested Classes' do
+	it 'must properly handle nested constants' do
+	    klass = test_module.module_eval do
+		concatenation :Rule do
+		    alternation :Inner do
+		    end
+		end
+	    end
+	    expect(test_module::Rule).not_to be_nil
+	    expect(test_module::Rule::Inner).not_to be_nil
+	    expect(klass).to eq(test_module::Rule)
+	    expect(klass::Inner).to eq(test_module::Rule::Inner)
+	end
+    end
+
     context 'Recursion' do
 	it 'must build a repeating Alternation' do
 	    test_module.module_eval do
