@@ -229,6 +229,24 @@ RSpec.describe Grammar::DSL do
 		end
 		expect(klass).to eq(Grammar::Concatenation.with('a', recursion_klass, 'z'))
 	    end
+
+	    it 'must not reject a non-recursive Alternation' do
+		klass = test_module.module_eval do
+		    alternation do |rule0|
+			elements 'abc', 'def'
+		    end
+		end
+		expect(klass).to eq(Grammar::Alternation.with('abc', 'def'))
+	    end
+
+	    it 'must not reject a non-recursive Concatenation' do
+		klass = test_module.module_eval do
+		    concatenation do |rule0|
+			elements 'abc', 'def'
+		    end
+		end
+		expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	    end
 	end
 
 	context 'Mutual Recursion' do

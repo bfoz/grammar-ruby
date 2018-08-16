@@ -137,7 +137,7 @@ module Grammar
 		else
 		    # Finalize the recursion proxy in case it was used
 		    if block.arity.nonzero?
-			subklass = post_evaluate(klass, subklass, _recursion_wrapper)
+			subklass = post_evaluate(klass, subklass, _recursion_wrapper, require_recursion:false)
 
 			# For anonymous recursion blocks, return the resulting pattern rather than the recursion-proxy
 			#  This behavior is closer to that of a non-recursive block and, hopefully, more intuitive
@@ -175,7 +175,7 @@ module Grammar
 	    end
 	end
 
-	def self.post_evaluate(klass, subklass, recursion_wrapper)
+	def self.post_evaluate(klass, subklass, recursion_wrapper, require_recursion:true)
 	    case klass
 		# Convert recursive Alternations into Repetitions
 		when Grammar::Alternation
@@ -240,8 +240,12 @@ module Grammar
 			# Somehow, some way, this thing is recursive. It's probably indirect-recursive or mutual-recursive.
 			recursion_wrapper.grammar = subklass
 			recursion_wrapper.freeze
-		    else
+		    elsif require_recursion
 			raise StandardError.new("Unknown recursion in Concatenation")
+		    else
+			# If the resulting grammar isn't recursive, and recursion isn't required, then this was probably an
+			#  anonymous recursion block that didn't actually use the recursion proxy. So just return the class.
+			subklass
 		    end
 
 	 	else
