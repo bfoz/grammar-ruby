@@ -38,6 +38,10 @@ RSpec.shared_examples 'repeatable' do
 	    expect(subklass.more_than(42)).to eq(Grammar::Repetition.more_than(42, subklass))
 	end
 
+	it 'must one' do
+	    expect(subklass.one).to eq(Grammar::Repetition.one(subklass))
+	end
+
 	it 'must one_or_more' do
 	    expect(subklass.one_or_more).to eq(Grammar::Repetition.one_or_more(subklass))
 	end

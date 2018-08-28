@@ -33,6 +33,11 @@ module Grammar::Repeatable
 	Grammar::Repetition.more_than(minimum, self)
     end
 
+    # Accept one, and only one, instance of the grammar
+    def one
+        Grammar::Repetition.one(self)
+    end
+
     # Require at least one repetition
     # @return [Repetition]
     def one_or_more

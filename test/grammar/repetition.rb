@@ -13,6 +13,14 @@ RSpec.describe Grammar::Repetition do
 	expect(*Grammar::Repetition).to eq(Grammar::Repetition)
     end
 
+    context 'Subclassing' do
+	it 'must become one' do
+	    klass = Grammar::Repetition.one('abc')
+	    expect(klass.maximum).to eq(1)
+	    expect(klass.minimum).to eq(1)
+	end
+    end
+
     describe 'when subclassed' do
 	it 'must have a maximum' do
 	    klass = Grammar::Repetition.at_most(42, 'abc')
@@ -50,6 +58,16 @@ RSpec.describe Grammar::Repetition do
 
 	it 'must splat' do
 	    expect(*Grammar::Repetition.optional('abc')).to eq('abc')
+	end
+
+	context 'Predicates' do
+	    it 'must be one when one' do
+		expect(Grammar::Repetition.one('abc')).to be_one
+	    end
+
+	    it 'must not be one when not one' do
+		expect(Grammar::Repetition.repeat('abc', 2)).not_to be_one
+	    end
 	end
     end
 

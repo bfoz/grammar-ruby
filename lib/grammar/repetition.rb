@@ -124,6 +124,13 @@ class Grammar::Repetition < Grammar::Base
 	    self.at_least(minimum+1, grammar)
 	end
 
+	# Require exactly one instance of the grammar
+	# @param [Grammar] 	The {Grammar} to be repeated
+	# @return [Repetition]
+	def one(grammar)
+	    self.repeat(grammar, 1)
+	end
+
 	# Require at least one repetition
 	# @param [Grammar] The {Grammar} to be repeated
 	# @return [Repetition]
@@ -161,6 +168,11 @@ class Grammar::Repetition < Grammar::Base
 
 	def at_least?(minimum)
 	    self.maximum.nil? and (self.minimum <= minimum)
+	end
+
+	# @attr_reader [Bool]	true if [minimum, maximum] == [1, nil]
+	def one?
+	    (1 == self.maximum) and (1 == self.minimum)
 	end
 
 	# @attr_reader [Bool]	true if [minimum, maximum] == [1, nil]
