@@ -13,15 +13,25 @@ class Grammar::Recursion < SimpleDelegator
     	nil
     end
 
+    # @group Predicates
+
     # @return [Bool]	Returns true if the first element is left recursive
     def left_recursive?
 	self.grammar&.respond_to?(:left_recursive?) and self.grammar&.left_recursive?
+    end
+
+    # All {Recursions} are assumed to be optional unless otherwise noted. This helps avoid infinite recursions.
+    # @return [True]
+    def optional?
+	true
     end
 
     # @return [Bool]	Returns true if grammar is recursive
     def recursive?
     	self.grammar&.respond_to?(:recursive?) and self.grammar&.recursive?
     end
+
+    # @endgroup
 
     def inspect
 	"<Recursion:" + self.grammar.inspect + ">"

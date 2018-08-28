@@ -1,6 +1,12 @@
 require 'grammar/recursion'
 
 RSpec.describe Grammar::Recursion do
+    context 'Subclass' do
+	it 'must be optional' do
+	    expect(Grammar::Recursion.with('abc')).to be_optional
+	end
+    end
+
     context 'when an instance' do
 	subject(:klass) { Grammar::Recursion.with('abc') }
 
