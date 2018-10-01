@@ -1,4 +1,8 @@
+require_relative 'repeatable'
+
 class Grammar::Recursion < SimpleDelegator
+    include Grammar::Repeatable
+
     attr_accessor :grammar
 
     def initialize(grammar=nil)
