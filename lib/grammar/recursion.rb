@@ -33,6 +33,15 @@ class Grammar::Recursion < SimpleDelegator
 
     # @endgroup
 
+    # @group Repeatable
+
+    # {Recursion}s are always optional (to avoid infinite recursion), so nothing to do here
+    def optional
+	self
+    end
+
+    # @endgroup Repeatable
+
     def inspect
 	"<Recursion:" + self.grammar.inspect + ">"
     end

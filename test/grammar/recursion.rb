@@ -5,6 +5,11 @@ RSpec.describe Grammar::Recursion do
 	it 'must be optional' do
 	    expect(Grammar::Recursion.with('abc')).to be_optional
 	end
+
+	it 'must not become more optional' do
+	    klass = Grammar::Recursion.with('abc')
+	    expect(klass.optional).to equal(klass)
+	end
     end
 
     context 'when an instance' do
