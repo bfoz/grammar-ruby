@@ -1,3 +1,5 @@
+require 'delegate'
+
 require_relative 'repeatable'
 
 class Grammar::Recursion < SimpleDelegator
