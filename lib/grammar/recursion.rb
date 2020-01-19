@@ -22,8 +22,16 @@ class Grammar::Recursion < SimpleDelegator
     # @group Predicates
 
     # @return [Bool]	Returns true if the first element is left recursive
-    def left_recursive?
-	self.grammar&.respond_to?(:left_recursive?) and self.grammar&.left_recursive?
+    def left_recursive?(root = nil, *path)
+	if root.nil?
+	    root = self
+	else
+	    return true if self.equal?(root) or self.grammar&.equal?(root) or (self.grammar&.is_a?(String) and (self.grammar == root))
+	    return false if path.include?(self)
+	    path.push self
+	end
+
+	self.grammar&.respond_to?(:left_recursive?) and self.grammar&.left_recursive?(root, *path)
     end
 
     # All {Recursions} are assumed to be optional unless otherwise noted. This helps avoid infinite recursions.
@@ -32,9 +40,18 @@ class Grammar::Recursion < SimpleDelegator
 	true
     end
 
+    # @param [Grammar]  The potential recursion root to check for. Defaults to self.
     # @return [Bool]	Returns true if grammar is recursive
-    def recursive?
-    	self.grammar&.respond_to?(:recursive?) and self.grammar&.recursive?
+    def recursive?(root = nil, *path)
+        if root.nil?
+            root = self
+        else
+            return true if self.equal?(root) or self.grammar&.equal?(root) or (self.grammar&.is_a?(String) and (self.grammar == root))
+            return false if path.include?(self)
+            path.push self
+        end
+
+	self.grammar&.respond_to?(:recursive?) and self.grammar&.recursive?(root, *path)
     end
 
     # @endgroup

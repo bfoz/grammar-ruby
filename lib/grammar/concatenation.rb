@@ -106,14 +106,29 @@ module Grammar
 		(respond_to?(:name) && name) || "Concatenation<#{self.object_id}>"
 	    end
 
+	    # @param [Grammar]	The potential recursion root to check for. Defaults to self.
 	    # @return [Bool]	Returns true if the first element is recursive
-	    def left_recursive?
-		elements.first.is_a?(Grammar::Recursion) or (elements.first.respond_to?(:left_recursive?) and elements.first.left_recursive?)
+	    def left_recursive?(root = nil, *path)
+		if root.nil?
+		    root = self
+		else
+		    return true if self.equal?(root)
+
+		    # If self is in path, then we've found a recursion, but not the recursion we're looking for
+		    # Consequently, we have to return here to avoid getting stuck in an infinite loop
+		    return false if path.include?(self)
+
+		    # If we're still looking, and root isn't self, then add self to the path and carry on
+		    path.push self
+		end
+
+		elements.first.respond_to?(:left_recursive?) and elements.first.left_recursive?(root, *path)
 	    end
 
-	    # @return [Bool]	Returns true if the first element is recursive
-	    def recursive?
-		elements.any? {|element| element.is_a?(Grammar::Recursion) or (element.respond_to?(:recursive?) and element.recursive?) }
+	    # @param [Grammar]	The potential recursion root to check for. Defaults to self.
+	    # @return [Bool]	Returns true if any element is recursive
+	    def recursive?(root = nil, *path)
+		elements.any? {|element| element.respond_to?(:recursive?) and element.recursive?(root, *path) }
 	    end
 
 	    # Allow explicit conversion to {Array}

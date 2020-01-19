@@ -10,6 +10,26 @@ RSpec.describe Grammar::Recursion do
 	    klass = Grammar::Recursion.with('abc')
 	    expect(klass.optional).to equal(klass)
 	end
+
+	it 'must be recursive with respect to itself' do
+	    klass = Grammar::Recursion.with('abc')
+	    expect(klass).to be_recursive(klass)
+	end
+
+	it 'must be recursive with respect to the wrapped grammar' do
+	    klass = Grammar::Recursion.with('abc')
+	    expect(klass).to be_recursive('abc')
+	end
+
+	it 'must be left recursive with respect to itself' do
+	    klass = Grammar::Recursion.with('abc')
+	    expect(klass).to be_left_recursive(klass)
+	end
+
+	it 'must be left recursive with respect to the wrapped grammar' do
+	    klass = Grammar::Recursion.with('abc')
+	    expect(klass).to be_left_recursive('abc')
+	end
     end
 
     context 'when an instance' do

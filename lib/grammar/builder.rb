@@ -185,7 +185,7 @@ module Grammar
 		    if original_length == non_recursive_elements.length
 			# Partition the elements into left-recursive and not left-recursive
 			left_recursive_elements, other_elements = subklass.elements.partition do |element|
-			    (element == recursion_wrapper) or (element.respond_to?(:left_recursive?) and element.left_recursive?)
+			    element.respond_to?(:left_recursive?) and element.left_recursive?(recursion_wrapper)
 			end
 
 			# Create an Alternation to contain the non-recursive elements, unless there's only one
@@ -236,7 +236,7 @@ module Grammar
 			# Center-recursive
 			recursion_wrapper.grammar = subklass
 			recursion_wrapper.freeze
-		    elsif subklass.recursive?
+		    elsif subklass.recursive?(recursion_wrapper)
 			# Somehow, some way, this thing is recursive. It's probably indirect-recursive or mutual-recursive.
 			recursion_wrapper.grammar = subklass
 			recursion_wrapper.freeze

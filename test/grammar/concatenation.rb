@@ -48,6 +48,24 @@ RSpec.describe Grammar::Concatenation do
 	it 'must splat' do
 	    expect([*klass]).to eq(['abc', 'def', 'xyz'])
 	end
+
+	describe 'when directly left recursive' do
+	    subject(:klass) do
+		recursion = Grammar::Recursion.new()
+		recursion.grammar = Grammar::Concatenation.with(recursion, 'abc')
+		recursion.grammar
+	    end
+
+	    it { should be_left_recursive }
+
+	    it 'must be left-recursive with respect to itself' do
+		should be_left_recursive(klass)
+	    end
+
+	    it 'must not be left-recursive with respect to anything else' do
+		should_not be_left_recursive(Grammar::Concatenation.with('sf'))
+	    end
+	end
     end
 
     context 'class hash equality' do
