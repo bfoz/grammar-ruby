@@ -1,3 +1,5 @@
+require 'forwardable'
+
 require_relative 'base'
 
 class Grammar::Repetition < Grammar::Base
