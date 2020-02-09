@@ -18,6 +18,10 @@ module Grammar
 
 	refine Regexp do
 	    include Grammar::Repeatable
+
+	    def |(other)
+		Grammar::Alternation.with(self, other)
+	    end
 	end
 
 	refine String do

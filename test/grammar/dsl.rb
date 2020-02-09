@@ -374,6 +374,17 @@ RSpec.describe Grammar::DSL do
 	end
     end
 
+    context 'Regexp Refinement' do
+	it 'must alternate with another Regexp' do
+	    module RegexpTest1
+		using Grammar::DSL
+		Rule0 = /abc/ | /def/
+	    end
+
+	    expect(RegexpTest1::Rule0).to eq(Grammar::Alternation.with(/abc/, /def/))
+	end
+    end
+
     context 'String refinement' do
 	it 'must alternate with other Strings' do
 	    module StringTest1
