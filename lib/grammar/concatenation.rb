@@ -128,6 +128,19 @@ module Grammar
 	    # @param [Grammar]	The potential recursion root to check for. Defaults to self.
 	    # @return [Bool]	Returns true if any element is recursive
 	    def recursive?(root = nil, *path)
+		if root.nil?
+		    root = self
+		else
+		    return true if self.equal?(root)
+
+		    # If self is in path, then we've found a recursion, but not the recursion we're looking for
+		    # Consequently, we have to return here to avoid getting stuck in an infinite loop
+		    return false if path.include?(self)
+
+		    # If we're still looking, and root isn't self, then add self to the path and carry on
+		    path.push self
+		end
+
 		elements.any? {|element| element.respond_to?(:recursive?) and element.recursive?(root, *path) }
 	    end
 

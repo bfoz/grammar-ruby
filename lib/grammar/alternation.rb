@@ -90,8 +90,29 @@ module Grammar
 		(respond_to?(:name) && name) || "Alternation<#{self.object_id}>"
 	    end
 
-	    # @note An {Alternation} is left-recursive when ever any of its elements are in any way recursive
-	    # @note An {Alternation} is left-recursive whenever any of its elements are in any way recursive
+	    # @note An {Alternation} is left-recursive whenever any of its elements are left-recursive
+	    # @param [Grammar]	The potential recursion root to check for. Defaults to self.
+	    # @return [Bool]	Returns true if any element is recursive
+	    def left_recursive?(root = nil, *path)
+		if root.nil?
+		    root = self
+		else
+		    return true if self.equal?(root)
+
+		    # If self is in path, then we've found a recursion, but not the recursion we're looking for
+		    # Consequently, we have to return here to avoid getting stuck in an infinite loop
+		    return false if path.include?(self)
+
+		    # If we're still looking, and root isn't self, then add self to the path and carry on
+		    path.push self
+		end
+
+		elements.any? do |element|
+		    element.respond_to?(:left_recursive?) and element.left_recursive?(root, *path)
+		end
+	    end
+
+	    # @note An {Alternation} is recursive whenever any of its elements are in any way recursive
 	    # @param [Grammar]	The potential recursion root to check for. Defaults to self.
 	    # @return [Bool]	Returns true if any element is recursive
 	    def recursive?(root = nil, *path)
@@ -109,10 +130,9 @@ module Grammar
 		end
 
 		elements.any? do |element|
-		    (element.respond_to?(:recursive?) and element.recursive?(root, *path)) or (element.respond_to?(:left_recursive) and element.left_recursive?(root, *path))
+		    element.respond_to?(:recursive?) and element.recursive?(root, *path)
 		end
 	    end
-	    alias left_recursive? recursive?
 
 	    # Allow explicit conversion to {Array}
 	    # @return [Array]

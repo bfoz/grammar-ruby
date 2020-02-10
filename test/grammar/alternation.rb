@@ -76,13 +76,23 @@ RSpec.describe Grammar::Alternation do
 		expect(wrapper.grammar).to be_recursive
 	    end
 
+	    it 'must be left-recursive when directly recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', wrapper, 'xyz')
+		expect(wrapper.grammar).to be_left_recursive
+	    end
+
 	    it 'it must be recursive when indirectly recursive' do
 		wrapper.grammar = Grammar::Alternation.with('abc', Grammar::Concatenation.with('def', wrapper), 'xyz')
 		expect(wrapper.grammar).to be_recursive
 	    end
 
-	    it 'it must be left recursive when indirectly recursive' do
+	    it 'it must not be left recursive when indirectly recursive' do
 		wrapper.grammar = Grammar::Alternation.with('abc', Grammar::Concatenation.with('def', wrapper), 'xyz')
+		expect(wrapper.grammar).not_to be_left_recursive
+	    end
+
+	    it 'it must be left recursive when indirectly left recursive' do
+		wrapper.grammar = Grammar::Alternation.with('abc', Grammar::Concatenation.with(wrapper, 'def'), 'xyz')
 		expect(wrapper.grammar).to be_left_recursive
 	    end
 	end
