@@ -176,11 +176,17 @@ RSpec.describe Grammar::DSL do
 	end
 
 	it 'must build a center-recursive concatenation' do
-	    test_module.module_eval do
+	    recursion_klass = nil
+	    klass = test_module.module_eval do
 		concatenation(:Rule0) do
+		    recursion_klass = Rule0
 		    elements '(', Rule0, ')'
 		end
 	    end
+
+	    expect(klass).to eq(Grammar::Concatenation.with('(', Grammar::Recursion.with(test_module::Rule0), ')'))
+	    expect(recursion_klass).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('(', recursion_klass, ')')))
+	    expect(recursion_klass.grammar).to eq(klass)
 	    expect(test_module::Rule0).to eq(Grammar::Concatenation.with('(', Grammar::Recursion.with(test_module::Rule0), ')'))
 	end
 
@@ -240,11 +246,15 @@ RSpec.describe Grammar::DSL do
 	    end
 
 	    it 'must not reject a non-recursive Concatenation' do
+		recursion_klass = nil
 		klass = test_module.module_eval do
 		    concatenation do |rule0|
+			recursion_klass = rule0 	# Lift rule0 out of the block for testing purposes
 			elements 'abc', 'def'
 		    end
 		end
+		expect(recursion_klass).to eq(Grammar::Recursion.with(Grammar::Concatenation.with('abc', 'def')))
+		expect(recursion_klass.grammar).to eq(klass)
 		expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
 	    end
 	end

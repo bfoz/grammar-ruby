@@ -245,6 +245,9 @@ module Grammar
 		    else
 			# If the resulting grammar isn't recursive, and recursion isn't required, then this was probably an
 			#  anonymous recursion block that didn't actually use the recursion proxy. So just return the class.
+			# But finalize the recursion wrapper anyway, just in case
+			recursion_wrapper.grammar = subklass
+			recursion_wrapper.freeze
 			subklass
 		    end
 
