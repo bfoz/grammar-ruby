@@ -40,6 +40,9 @@ class Grammar::Repetition < Grammar::Base
 	# @return [Alternation, Concatenation] The repeated grammar element
 	attr_reader :grammar
 
+	# @return [Grammar]	The pattern to be ignore between elements
+	attr_reader :ignore
+
 	# @return [Integer] The maximum allowed number of repetitions (inclusive)
 	attr_reader :maximum
 
@@ -50,8 +53,9 @@ class Grammar::Repetition < Grammar::Base
 	# @param [Grammar] The {Grammar} to be repeated
 	# @option [Integer] minimum The minimum number of repetitions to accept
 	# @option [Integer] maximum The maximum number of repetitions to allow (inclusive)
+	# @option [Grammar] ignore A pattern to be ignored between elements
 	# @return [Repetition] A new {Repetition}
-	def with(grammar, maximum:, minimum:)
+	def with(grammar, maximum:, minimum:, ignore:nil)
 	    raise ArgumentError.new('grammar must not be nil') if grammar.nil?
 
 	    require_relative 'repeatable'
@@ -62,6 +66,7 @@ class Grammar::Repetition < Grammar::Base
 		extend Grammar::Repeatable
 
 		@grammar = grammar
+		@ignore = ignore
 		@maximum = maximum
 		@minimum = minimum
 
@@ -97,68 +102,68 @@ class Grammar::Repetition < Grammar::Base
 
 	# Zero or more repetitions
 	# @param [Grammar] The {Grammar} to be repeated
-	def any(grammar)
-	    self.with(grammar, maximum:nil, minimum:0)
+	def any(grammar, ignore:nil)
+	    self.with(grammar, maximum:nil, minimum:0, ignore:ignore)
 	end
 
 	# @param [Integer] The minimum required repetitions
 	# @param [Grammar] The {Grammar} to be repeated
-	def at_least(minimum, grammar)
-	    self.with(grammar, maximum:nil, minimum:minimum)
+	def at_least(minimum, grammar, ignore:nil)
+	    self.with(grammar, maximum:nil, minimum:minimum, ignore:ignore)
 	end
 
 	# @param [Integer] The maximum allowed repetitions (inclusive)
 	# @param [Grammar] The {Grammar} to be repeated
-	def at_most(maximum, grammar)
-	    self.with(grammar, maximum:maximum, minimum:nil)
+	def at_most(maximum, grammar, ignore:nil)
+	    self.with(grammar, maximum:maximum, minimum:nil, ignore:ignore)
 	end
 
 	# @param [Integer]  Accept up to, but not including, maximum repetitions
 	# @return [Repetition]
-	def less_than(maximum, grammar)
+	def less_than(maximum, grammar, ignore:nil)
 	    raise ArgumentError('Cannot have fewer than 0 repetitions') if maximum < 1
-	    self.at_most(maximum-1, grammar)
+	    self.at_most(maximum-1, grammar, ignore:ignore)
 	end
 
 	# @param [Integer]  Accept more than minimum repetitions
 	# @return [Repetition]
-	def more_than(minimum, grammar)
-	    self.at_least(minimum+1, grammar)
+	def more_than(minimum, grammar, ignore:nil)
+	    self.at_least(minimum+1, grammar, ignore:ignore)
 	end
 
 	# Require exactly one instance of the grammar
 	# @param [Grammar] 	The {Grammar} to be repeated
 	# @return [Repetition]
-	def one(grammar)
-	    self.repeat(grammar, 1)
+	def one(grammar, ignore:nil)
+	    self.repeat(grammar, 1, ignore:ignore)
 	end
 
 	# Require at least one repetition
 	# @param [Grammar] The {Grammar} to be repeated
 	# @return [Repetition]
-	def one_or_more(grammar)
-	    self.at_least(1, grammar)
+	def one_or_more(grammar, ignore:nil)
+	    self.at_least(1, grammar, ignore:ignore)
 	end
 
 	# Require exactly 0 or 1 instance
 	# @param [Grammar] The {Grammar} to be repeated
 	# @return [Repetition]
-	def optional(grammar)
-	    self.with(grammar, maximum:1, minimum:0)
+	def optional(grammar, ignore:nil)
+	    self.with(grammar, maximum:1, minimum:0, ignore:ignore)
 	end
 	alias maybe optional
 
 	# Match between minimum and maximum times (inclusive), or match exactly minimum times if maximum is nil
 	# @param [Grammar] The {Grammar} to be repeated
 	# @return [Repetition]
-	def repeat(grammar, minimum, maximum=nil)
-	    self.with(grammar, maximum:(maximum or minimum), minimum:minimum)
+	def repeat(grammar, minimum, maximum=nil, ignore:nil)
+	    self.with(grammar, maximum:(maximum or minimum), minimum:minimum, ignore:ignore)
 	end
 
 	# Require zero or more repetitions
 	# @param [Grammar] The {Grammar} to be repeated
-	def zero_or_more(grammar)
-	    self.any(grammar)
+	def zero_or_more(grammar, ignore:nil)
+	    self.any(grammar, ignore:ignore)
 	end
 
 	# @group Predicates

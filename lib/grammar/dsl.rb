@@ -4,12 +4,18 @@ module Grammar
     module DSL
 	def alternation(*elements, &block)
 	    options = {}
-	    Grammar::Builder.build(Grammar::Alternation, *elements, **options, &block)
+	    Grammar::Builder.build(Grammar::Alternation, *elements, ignore:@ignore, **options, &block)
 	end
 
 	def concatenation(*elements, &block)
 	    options = {}
-	    Grammar::Builder.build(Grammar::Concatenation, *elements, **options, &block)
+	    Grammar::Builder.build(Grammar::Concatenation, *elements, ignore:@ignore, **options, &block)
+	end
+
+	# Configure a pattern to be implicitly ignored by the parser
+	#  Generally this is used to indicate the whitespace between tokens
+	def ignore(pattern=nil)
+	    @ignore = pattern
 	end
 
 	refine Module do

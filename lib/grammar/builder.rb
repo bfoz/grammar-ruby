@@ -6,8 +6,9 @@ module Grammar
     class Builder
 	include Grammar::DSL
 
-	def initialize(klass, local_constants={})
+	def initialize(klass, local_constants={}, ignore:nil)
 	    @elements = []
+	    @ignore = ignore
 	    @klass = klass
 	    @local_constants = local_constants
 	end
@@ -25,7 +26,12 @@ module Grammar
 		raise ArgumentError.new("A recursion proxy object is required") unless recursion_proxy
 		self.instance_exec(recursion_proxy, &block)
 	    end
-	    @klass.with(*@elements)
+
+	    if Concatenation == @klass
+		@klass.with(*@elements, ignore:@ignore)
+	    else
+		@klass.with(*@elements)
+	    end
 	end
 
 	# The second half of the instance_eval delegation trick mentioned at
@@ -55,11 +61,11 @@ module Grammar
 
 	# Wrap the evaluation step to make subclassing easier
 	# @return The result of the evaluation
-	def self.evaluate(klass, recursion_proxy, local_constants, **options, &block)
-	    self.new(klass, local_constants).evaluate(recursion_proxy, &block)
+	def self.evaluate(klass, recursion_proxy, local_constants, ignore:nil, **options, &block)
+	    self.new(klass, local_constants, ignore:ignore).evaluate(recursion_proxy, &block)
 	end
 
-	def self.build(klass, *elements, **options, &block)
+	def self.build(klass, *elements, ignore:nil, **options, &block)
 	    if block_given?
 		grammar_name = elements.shift if elements.first&.is_a?(Symbol)
 		raise ArgumentError.new("Block or elements, but not both") unless elements.empty?
@@ -103,7 +109,7 @@ module Grammar
 		    end
 		end
 
-		subklass = self.evaluate(klass, _recursion_wrapper, local_constants, &block)
+		subklass = self.evaluate(klass, _recursion_wrapper, local_constants, ignore:ignore, **options, &block)
 		# Restore the original const_missing
 		if original_const_missing
 		    lexical_self.define_singleton_method(:const_missing, original_const_missing)
@@ -161,6 +167,11 @@ module Grammar
 			_elements.push element
 		    end
 		    [_elements, _local_constants]
+		end
+
+		# Pass the "ignore" pattern to anything that's expecting it
+		if klass.method(:with).parameters.any? {|a, b| (a == :key) and (b == :ignore)}
+		    options[:ignore] = ignore
 		end
 
 		if options.empty?

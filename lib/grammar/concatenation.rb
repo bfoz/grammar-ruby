@@ -61,12 +61,15 @@ module Grammar
 	    include Repeatable
 
 	    attr_reader :elements
+	    attr_reader :ignore
 
 	    def_delegators :@elements, :[], :each, :first, :last, :length
 
-	    def with(*args)
+	    # @option [Grammar] ignore A pattern to be ignored between elements
+	    def with(*args, ignore:nil)
 		Class.new(self) do
 		    @elements = args.clone
+		    @ignore = ignore
 
 		    class << self
 			# Generic equality

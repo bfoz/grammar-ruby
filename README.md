@@ -33,6 +33,25 @@ foo_bar = Grammar::Alternation.with('foo', 'bar')	# => Class:0xXXXXX
 parser.parse('foo')					# => #<Grammar::Alternation @match='foo'>
 ```
 
+## Grammar Elements
+
+A _grammar_ is a tree of grammar elements that closely mirror the typical BNF, PEG, etc grammars.
+
+### Whitespace
+
+Typically, grammar languages implicitly ignore whitespace. In those cases, whitespace is defined according to some internal pattern.
+
+In _Grammar_, whitespace isn't automatically ignored. However, you can explicitly specify a pattern to be ignored.
+
+```ruby
+module MyGRammar
+    using Grammar::DSL
+
+    ignore /\s*/        # Ignore whitespace
+    ...
+end
+```
+
 ## Recursion
 
 Most uses of recursion in typical parser grammars are actually a hack for implementing repetition. In _Grammar_, repetition is represented explicitly using the _Repetition_ class, which eliminates most of the common use cases. However, that still leaves a few cases to be handled. The _Parenthesis Language_ being a notable example.

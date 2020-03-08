@@ -125,6 +125,15 @@ RSpec.describe Grammar::DSL do
 	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
 	    expect(klass::First).to eq('abc')
 	end
+
+	it 'must ignore a pattern' do
+	    klass = test_module.module_eval do
+		ignore 'space'
+		concatenation 'abc', 'def'
+	    end
+	    expect(klass).to eq(Grammar::Concatenation.with('abc', 'def'))
+	    expect(klass.ignore).to eq('space')
+	end
     end
 
     context 'Nested Classes' do
