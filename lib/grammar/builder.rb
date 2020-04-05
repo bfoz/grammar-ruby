@@ -6,7 +6,7 @@ module Grammar
     class Builder
 	include Grammar::DSL
 
-	def initialize(klass, local_constants={}, ignore:nil)
+	def initialize(klass, local_constants:{}, ignore:nil)
 	    @elements = []
 	    @ignore = ignore
 	    @klass = klass
@@ -62,7 +62,7 @@ module Grammar
 	# Wrap the evaluation step to make subclassing easier
 	# @return The result of the evaluation
 	def self.evaluate(klass, recursion_proxy, local_constants, ignore:nil, **options, &block)
-	    self.new(klass, local_constants, ignore:ignore).evaluate(recursion_proxy, &block)
+	    self.new(klass, local_constants:local_constants, ignore:ignore).evaluate(recursion_proxy, &block)
 	end
 
 	def self.build(klass, *elements, ignore:nil, **options, &block)
