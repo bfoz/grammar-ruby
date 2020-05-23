@@ -61,6 +61,18 @@ RSpec.describe Grammar::Builder do
 	    expect(klass.elements.last).to be < Grammar::Repetition
 	    expect(klass.elements). to eq(['a', 'b', Grammar::Concatenation.with('c', 'd').any])
 	end
+
+	it 'must create a Latch' do
+	    klass = subject.evaluate do
+	    	latch(:foo) { 'foo' }
+	    	element 'a'
+	    	element 'b'
+	    end
+
+	    expect(klass).to be < Grammar::Alternation
+	    expect(klass.elements).to eq(['a', 'b'])
+	    expect(klass.context.keys.first).to be < Grammar::Latch
+	end
     end
 
     context 'Concatenation' do
@@ -122,6 +134,18 @@ RSpec.describe Grammar::Builder do
 	    expect(klass).to be < Grammar::Concatenation
 	    expect(klass.elements.last).to be < Grammar::Repetition
 	    expect(klass.elements). to eq(['a', 'b', Grammar::Concatenation.with('c', 'd').any])
+	end
+
+	it 'must create a Latch' do
+	    klass = subject.evaluate do
+	    	latch(:foo) { 'foo' }
+	    	element 'a'
+	    	element 'b'
+	    end
+
+	    expect(klass).to be < Grammar::Concatenation
+	    expect(klass.elements).to eq(['a', 'b'])
+	    expect(klass.context.keys.first).to be < Grammar::Latch
 	end
     end
 end

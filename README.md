@@ -37,6 +37,26 @@ parser.parse('foo')					# => #<Grammar::Alternation @match='foo'>
 
 A _grammar_ is a tree of grammar elements that closely mirror the typical BNF, PEG, etc grammars.
 
+### Reference
+
+A _Reference_ element can be used to refer to a grammar element that will be defined later in the module, but needs to be used before it can be defined. Typically references are used in recursive grammars, and are therefore very similar to the _Recursion_ element. However, not all elements in a recursive chain are actually recursive, and sometimes it's simply more convenient to forward-declare an element.
+
+#### Latch
+
+A _Latch_ is a type of _Reference_ that closely resembles the "back references" of regular expressions. When a _Latch_ first matches its pattern, it saves (i.e. latches) the matching input. Subsequent uses of the _Latch_ must then match the latched input.
+
+Note that Latches are treated as a sort of context variable in that they are attached to a particular parsing context. When a parser enters a context it resets all of the _Latches_ in that context.
+
+```ruby
+QuotedString = concatenation do
+    latch(:quote) { /['"]/ }    # Create a Latch and attach it to the QuotedString context
+
+    element quote   # First use. This will match a single- or double-quote
+    element /\w*/   # Match the string
+    element quote   # Second use. Matches whatever the first use matched.
+end
+```
+
 ### Whitespace
 
 Typically, grammar languages implicitly ignore whitespace. In those cases, whitespace is defined according to some internal pattern.

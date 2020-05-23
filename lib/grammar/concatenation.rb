@@ -60,14 +60,17 @@ module Grammar
 	    extend Forwardable
 	    include Repeatable
 
+	    attr_reader :context
 	    attr_reader :elements
 	    attr_reader :ignore
 
 	    def_delegators :@elements, :[], :each, :first, :last, :length
 
+	    # @option [Hash]	Context variables
 	    # @option [Grammar] ignore A pattern to be ignored between elements
-	    def with(*args, ignore:nil)
+	    def with(*args, context:{}, ignore:nil)
 		Class.new(self) do
+		    @context = context
 		    @elements = args.clone
 		    @ignore = ignore
 

@@ -11,6 +11,7 @@ module Grammar
 	    @ignore = ignore
 	    @klass = klass
 	    @local_constants = local_constants
+	    @local_variables = {}
 	end
 
 	# Evaluate a block in the contect of @klass and return a new instance of @klass
@@ -27,10 +28,23 @@ module Grammar
 		self.instance_exec(recursion_proxy, &block)
 	    end
 
-	    if Concatenation == @klass
-		@klass.with(*@elements, ignore:@ignore)
-	    else
+	    options = {}
+	    parameter_keys = @klass.method(:with).parameters.map {|a, b| b if a}.compact
+
+	    # If the subclass accepts an "ignore" pattern
+	    if parameter_keys.include?(:ignore)
+		options[:ignore] = @ignore
+	    end
+
+	    # If the subclass accepts a context, convert any generated Latches to context variables
+	    if parameter_keys.include?(:context)
+		options[:context] = @local_variables.map {|k,v| (Grammar::Latch === v) ? [v, nil] : nil }.to_h
+	    end
+
+	    if options.empty?
 		@klass.with(*@elements)
+	    else
+		@klass.with(*@elements, **options)
 	    end
 	end
 
@@ -39,6 +53,8 @@ module Grammar
 	def method_missing(method, *args, &block)
 	    if @self_before_instance_eval.respond_to? method
 		@self_before_instance_eval.send method, *args, &block
+	    elsif @local_variables.key?(method)
+		@local_variables[method]
 	    else
 		super if defined?(super)
 	    end
@@ -57,6 +73,29 @@ module Grammar
 
 	def elements(*args)
 	    args.each {|arg| self.element(arg) }
+	end
+
+	# Create a new {Latch} object and assign it to the given name in the local scope
+	# If a name isn't given, it returns a new {Latch} without assigning it to a local name
+	# If a hash option is passed and the value is a {Latch}, then force the given Latch to also
+	#  exist in this Pattern's context in addition to the original context (if any)
+	# @return [Latch]
+	def latch(name=nil, **options, &block)
+	    if name
+		@local_variables[name] ||= Latch.with(block.call())
+		self.singleton_class.define_method(name) { @local_variables[name] }
+		@local_variables[name]
+	    elsif not options.empty?
+		options.each do |k,v|
+		    if (k.is_a?(Symbol) or k.is_a?(String)) and (Latch === v)
+			@local_variables[k] ||= v
+			self.singleton_class.define_method(k) { @local_variables[k] }
+			@local_variables[k]
+		    end
+		end
+	    else
+		Latch.with(block.call())
+	    end
 	end
 
 	# Wrap the evaluation step to make subclassing easier

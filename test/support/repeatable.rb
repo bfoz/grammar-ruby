@@ -2,7 +2,7 @@ RSpec.shared_examples 'repeatable' do
     subject(:grammar_klass) { described_class }
 
     def case_klass(klass, *args)
-	_index = [Grammar::Alternation, Grammar::Concatenation].find_index(&klass.method(:equal?))
+	_index = [Grammar::Alternation, Grammar::Concatenation, Grammar::Latch].find_index(&klass.method(:equal?))
 	raise ArgumentError.new("Unknown Grammar Type: #{klass}") unless _index
 	arg = args[_index]
 	arg.respond_to?(:call) ? arg.call : arg
@@ -12,6 +12,7 @@ RSpec.shared_examples 'repeatable' do
 	case_klass(klass,
 	    ->{ Grammar::Alternation.with('a', 'b') },
 	    ->{ Grammar::Concatenation.with('abc', 'def') },
+	    ->{ Grammar::Latch.with('abc') },
 	)
     end
 

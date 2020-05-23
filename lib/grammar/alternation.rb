@@ -48,12 +48,15 @@ module Grammar
 	    extend Forwardable
 	    include Repeatable
 
+	    attr_reader :context
 	    attr_reader :elements
 
 	    def_delegators :@elements, :[], :each, :first, :last, :length
 
-	    def with(*args)
+	    # @option [Hash]	Context variables
+	    def with(*args, context:{})
 		Class.new(self) do
+		    @context = context
 		    @elements = args.clone
 
 		    class << self

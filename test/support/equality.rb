@@ -2,18 +2,19 @@ RSpec.shared_examples 'equality' do
     subject(:grammar_klass) { described_class }
 
     def case_klass(klass, *args)
-	_index = [Grammar::Alternation, Grammar::Concatenation, Grammar::Repetition].find_index(&klass.method(:equal?))
+	_index = [Grammar::Alternation, Grammar::Concatenation, Grammar::Latch, Grammar::Repetition].find_index(&klass.method(:equal?))
 	raise ArgumentError.new("Unknown Grammar Type") unless _index
 	arg = args[_index]
 	arg.respond_to?(:call) ? arg.call : arg
     end
 
-    let!(:different_klass) { case_klass(grammar_klass, Grammar::Concatenation, Grammar::Alternation, Grammar::Alternation) }
+    let!(:different_klass) { case_klass(grammar_klass, Grammar::Concatenation, Grammar::Alternation, Grammar::Alternation, Grammar::Alternation) }
 
     def create_instance(klass, subklass, location:nil)
 	case_klass(klass,
 	    ->{ subklass.new('a', location:location) },			# Grammar::Alternation
 	    ->{ subklass.new('abc', 'def', location:location) },	# Grammar::Concatenation
+	    ->{ location&.zero? ? unequal_subklass.new() : latch_instance },	# Grammar::Latch
 	    ->{ subklass.new('a', location:location) },			# Grammar::Repetition
 	)
     end
@@ -22,6 +23,7 @@ RSpec.shared_examples 'equality' do
 	case_klass(klass,
 	    ->{ Grammar::Alternation.with('a', 'b') },
 	    ->{ Grammar::Concatenation.with('abc', 'def') },
+	    ->{ Grammar::Latch.with('a') },
 	    ->{ Grammar::Repetition.any('a') },
 	)
     end
@@ -33,10 +35,12 @@ RSpec.shared_examples 'equality' do
 	case_klass(grammar_klass,
 	    ->{ Grammar::Alternation.with('x', 'y') },
 	    ->{ Grammar::Concatenation.with('x', 'y', 'z') },
+	    ->{ Grammar::Latch.with('b') },
 	    ->{ Grammar::Repetition.any('z') },
 	)
     end
 
+    let(:latch_instance) { subklass.new }
     let!(:match_instance) { create_instance(grammar_klass, subklass) }
 
     # An instance of the subclass that isn't the match_instance but is identical to it
@@ -44,18 +48,20 @@ RSpec.shared_examples 'equality' do
 
     # An instance of the subclass that's identical to the match_instance but at a different location
     let(:equal_instance_different_location) { create_instance(grammar_klass, subklass, location:42) }
+    let(:unequal_instance_different_location) { create_instance(grammar_klass, subklass, location:0) }
 
     # An instance of the subklass that isn't the equal_instance
     let(:unequal_instance) do
 	case_klass(grammar_klass,
 	    ->{ subklass.new('def', location:1) },					# Grammar::Alternation
 	    ->{ subklass.new('def', 'abc') },						# Grammar::Concatenation: NOTE: This is Bad because initialize() should really be checking the passed elements
+	    ->{ unequal_subklass.new() },						# Grammar::Latch
 	    ->{ subklass.new('a', 'a') },						# Grammar::Repetition
 	)
     end
 
-    let(:equal_string) { case_klass(grammar_klass, 'a', 'abcdef', 'a') }
-    let(:unequal_string) { case_klass(grammar_klass, 'z', 'xyz', 'z') }
+    let(:equal_string) { case_klass(grammar_klass, 'a', 'abcdef', ->{ latch_instance }, 'a') }
+    let(:unequal_string) { case_klass(grammar_klass, 'z', 'xyz', false, 'z') }
 
     context 'Generic Equality' do
 	# Class
@@ -246,7 +252,7 @@ RSpec.shared_examples 'equality' do
 	    end
 
 	    it 'must not equal a nonmatching string' do
-		is_expected.not_to eq('def')
+		is_expected.not_to eq(unequal_string)
 	    end
 	end
 
@@ -300,7 +306,7 @@ RSpec.shared_examples 'equality' do
 	    end
 
 	    it 'must not hash-equal an instance at a different location' do
-		is_expected.not_to eql(equal_instance_different_location)
+		is_expected.not_to eql(unequal_instance_different_location)
 	    end
 	end
     end
