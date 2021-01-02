@@ -19,6 +19,17 @@ class Grammar::Recursion < SimpleDelegator
     	nil
     end
 
+    # Hash equality
+    def eql?(other)
+	super or self.grammar.eql?(other.grammar)
+    rescue NoMethodError
+	nil
+    end
+
+    def hash
+	self.grammar.hash + super
+    end
+
     # @group Predicates
 
     # @return [Bool]	Returns true if the first element is left recursive

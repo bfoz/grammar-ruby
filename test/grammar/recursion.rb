@@ -42,5 +42,24 @@ RSpec.describe Grammar::Recursion do
 	it 'must not be equal to a different instance with a different grammar' do
 	    expect(klass).not_to eq(Grammar::Recursion.with('xyz'))
 	end
+
+	context 'Hash Equality' do
+	    it 'must be hash-equal to itself' do
+		expect(klass).to eql(klass)
+	    end
+
+	    it 'must be hash-equal to a different instance with the same grammar instance' do
+		grammar = Grammar::Concatenation.with('abc')
+		expect(Grammar::Recursion.with(grammar)).to eql(Grammar::Recursion.with(grammar))
+	    end
+
+	    it 'must be hash-equal to a different instance with an equal grammar' do
+		expect(Grammar::Recursion.with(Grammar::Concatenation.with('abc'))).to eql(Grammar::Recursion.with(Grammar::Concatenation.with('abc')))
+	    end
+
+	    it 'must not be hash-equal to a different instance with a different grammar' do
+		expect(klass).not_to eql(Grammar::Recursion.with(Grammar::Concatenation.with('xyz')))
+	    end
+	end
     end
 end
