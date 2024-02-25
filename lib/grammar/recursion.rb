@@ -20,14 +20,13 @@ class Grammar::Recursion < SimpleDelegator
     end
 
     # Hash equality
+    #  NOTE: {Recursion} can't use the normal trick of overriding #hash because that has an annoying tendency
+    #	towards infinite recursion. Which makes sense given that this *is* a Recursion object.
+    # 	Instead, implement #eql? such that it's very picky and very simple.
     def eql?(other)
-	super or self.grammar.eql?(other.grammar)
+	(object_id == other.object_id) or self.grammar.eql?(other.grammar)
     rescue NoMethodError
 	nil
-    end
-
-    def hash
-	self.grammar.hash + super
     end
 
     # @group Predicates
